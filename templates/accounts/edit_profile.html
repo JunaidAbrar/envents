@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile | Envents{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-8">
+    <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold mb-6">Edit Profile</h2>
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    <p>Please correct the errors below.</p>
+                </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">First Name</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <p class="text-red-600 text-xs italic">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="space-y-2">
+                    <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">Last Name</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <p class="text-red-600 text-xs italic">{{ form.last_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">Email Address</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-red-600 text-xs italic">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="space-y-2">
+                <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                {{ form.phone_number }}
+                {% if form.phone_number.errors %}
+                    <p class="text-red-600 text-xs italic">{{ form.phone_number.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="space-y-2">
+                <label for="{{ form.profile_picture.id_for_label }}" class="block text-sm font-medium text-gray-700">Profile Picture</label>
+                {% if user.profile_picture %}
+                    <div class="flex items-center space-x-4 mb-2">
+                        <img src="{{ user.profile_picture.url }}" alt="Current profile picture" class="h-16 w-16 object-cover rounded-full">
+                        <p class="text-sm text-gray-600">Current profile picture</p>
+                    </div>
+                {% endif %}
+                {{ form.profile_picture }}
+                {% if form.profile_picture.errors %}
+                    <p class="text-red-600 text-xs italic">{{ form.profile_picture.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="space-y-2">
+                <label for="{{ form.bio.id_for_label }}" class="block text-sm font-medium text-gray-700">Bio</label>
+                {{ form.bio }}
+                {% if form.bio.errors %}
+                    <p class="text-red-600 text-xs italic">{{ form.bio.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="pt-4 flex items-center justify-between">
+                <a href="{% url 'accounts:profile' %}" class="text-indigo-600 hover:underline">Cancel</a>
+                <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

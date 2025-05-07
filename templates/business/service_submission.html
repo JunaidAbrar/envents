@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Submit Service | Envents{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div>
+            <div class="flex items-center">
+                <div class="bg-indigo-100 rounded-lg p-2 mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800">Submit a Service</h1>
+            </div>
+            <p class="text-gray-600 mt-3 ml-11">
+                Fill out the form below to submit your service for review
+            </p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <a href="{% url 'business:dashboard' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-150">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <!-- Form Progress Indicator -->
+    <div class="max-w-4xl mx-auto mb-6">
+        <div class="bg-gray-50 rounded-lg p-3 shadow-sm">
+            <div class="flex justify-between items-center">
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center justify-center h-8 w-8 rounded-full bg-indigo-600 text-white font-medium">
+                        1
+                    </div>
+                    <span class="text-xs mt-1 text-gray-700">Information</span>
+                </div>
+                <div class="flex-1 mx-4">
+                    <div class="h-1 bg-indigo-600"></div>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center justify-center h-8 w-8 rounded-full bg-indigo-600 text-white font-medium">
+                        2
+                    </div>
+                    <span class="text-xs mt-1 text-gray-700">Pricing</span>
+                </div>
+                <div class="flex-1 mx-4">
+                    <div class="h-1 bg-indigo-600"></div>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center justify-center h-8 w-8 rounded-full bg-indigo-600 text-white font-medium">
+                        3
+                    </div>
+                    <span class="text-xs mt-1 text-gray-700">Photos</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Form Card -->
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+        {% if messages %}
+            <div class="px-6 pt-6">
+                {% for message in messages %}
+                    <div class="p-4 mb-4 {% if message.tags == 'success' %}bg-green-100 text-green-700 border-l-4 border-green-500{% elif message.tags == 'error' %}bg-red-100 text-red-700 border-l-4 border-red-500{% else %}bg-blue-100 text-blue-700 border-l-4 border-blue-500{% endif %} rounded-md">
+                        <div class="flex items-center">
+                            {% if message.tags == 'success' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                            {% elif message.tags == 'error' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            {% endif %}
+                            {{ message }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data" class="p-6">
+            {% csrf_token %}
+            
+            <!-- Service Information -->
+            <div class="border-b border-gray-200 pb-6">
+                <div class="flex items-center mb-5">
+                    <div class="p-2 bg-indigo-100 rounded-md mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" />
+                            <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800">Service Information</h2>
+                </div>
+                
+                <!-- Name -->
+                <div class="mb-5 bg-gray-50 p-4 rounded-lg">
+                    <label for="{{ service_form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Service Name <span class="text-red-500">*</span>
+                    </label>
+                    {{ service_form.name }}
+                    {% if service_form.name.errors %}
+                        <p class="mt-1 text-sm text-red-600 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            {{ service_form.name.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <!-- Category -->
+                <div class="mb-5 bg-gray-50 p-4 rounded-lg">
+                    <label for="{{ service_form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Category <span class="text-red-500">*</span>
+                    </label>
+                    {{ service_form.category }}
+                    {% if service_form.category.errors %}
+                        <p class="mt-1 text-sm text-red-600 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            {{ service_form.category.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <!-- Description -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <label for="{{ service_form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Description <span class="text-red-500">*</span>
+                    </label>
+                    {{ service_form.description }}
+                    {% if service_form.description.errors %}
+                        <p class="mt-1 text-sm text-red-600 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            {{ service_form.description.errors.0 }}
+                        </p>
+                    {% endif %}
+                    <p class="mt-2 text-xs text-gray-500 flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Provide a detailed description of your service, including what customers can expect, your experience, and what makes your service unique.</span>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Pricing Information -->
+            <div class="border-b border-gray-200 py-6">
+                <div class="flex items-center mb-5">
+                    <div class="p-2 bg-indigo-100 rounded-md mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800">Pricing Information</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <label for="{{ service_form.base_price.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Base Price <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            {{ service_form.base_price }}
+                        </div>
+                        {% if service_form.base_price.errors %}
+                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                                {{ service_form.base_price.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <label for="{{ service_form.price_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Price Type <span class="text-red-500">*</span>
+                        </label>
+                        {{ service_form.price_type }}
+                        {% if service_form.price_type.errors %}
+                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                                {{ service_form.price_type.errors.0 }}
+                            </p>
+                        {% endif %}
+                        <p class="mt-2 text-xs text-gray-500">E.g., "Per hour", "Flat rate", "Per person", etc.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Photos -->
+            <div class="py-6">
+                <div class="flex items-center mb-5">
+                    <div class="p-2 bg-indigo-100 rounded-md mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800">Photos</h2>
+                </div>
+                <p class="text-sm text-gray-600 mb-4 ml-10 flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 flex-shrink-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Upload high-quality photos that showcase your service. The first photo marked as primary will be used as the main image.</span>
+                </p>
+                
+                {{ photo_formset.management_form }}
+                
+                <div class="space-y-4">
+                    {% for form in photo_formset %}
+                        <div class="border border-gray-200 rounded-lg overflow-hidden shadow-sm photo-form hover:shadow-md transition-shadow duration-200">
+                            <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 flex justify-between items-center">
+                                <h3 class="text-sm font-medium text-gray-700">Photo #{{ forloop.counter }}</h3>
+                                {% if form.instance.pk %}
+                                    <div class="flex items-center text-sm">
+                                        {{ form.DELETE }}
+                                        <label for="{{ form.DELETE.id_for_label }}" class="ml-2 text-red-600 cursor-pointer flex items-center hover:text-red-800">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                            Delete
+                                        </label>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            {{ form.id }}
+                            <div class="p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                                    <div class="col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Photo</label>
+                                        {{ form.image }}
+                                        {% if form.image.errors %}
+                                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                                {{ form.image.errors.0 }}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <label for="{{ form.caption.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Caption (optional)</label>
+                                        {{ form.caption }}
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <div class="flex items-center bg-gray-50 p-2 rounded-md border border-gray-200">
+                                        {{ form.is_primary }}
+                                        <label for="{{ form.is_primary.id_for_label }}" class="ml-2 block text-sm text-gray-700 cursor-pointer">
+                                            <span class="font-medium">Set as primary photo</span> 
+                                            <span class="text-xs text-gray-500">(This will be the main image)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="pt-6 flex justify-center">
+                <button type="submit" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md shadow-sm hover:shadow transition-all duration-150 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Submit Service for Review
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Setup for primary photo radio button behavior
+        const primaryCheckboxes = document.querySelectorAll('input[name$="-is_primary"]');
+        primaryCheckboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    primaryCheckboxes.forEach(function(otherCheckbox) {
+                        if (otherCheckbox !== checkbox) {
+                            otherCheckbox.checked = false;
+                        }
+                    });
+                }
+            });
+        });
+        
+        // Add classes to form inputs for consistent styling
+        const formControls = document.querySelectorAll('input[type="text"], input[type="number"], textarea, select');
+        formControls.forEach(function(control) {
+            if (!control.classList.contains('form-control')) {
+                control.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-200', 'focus:ring-opacity-50');
+                
+                if (control.type === 'number' && control.id === '{{ service_form.base_price.id_for_label }}') {
+                    control.classList.add('pl-7');
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

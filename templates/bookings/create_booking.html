@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Book {{ venue.name }} - Envents{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <div class="flex items-center text-sm text-gray-500 mb-6">
+        <a href="{% url 'home' %}" class="hover:text-indigo-600">Home</a>
+        <span class="mx-2">/</span>
+        <a href="{% url 'venues:venue_list' %}" class="hover:text-indigo-600">Venues</a>
+        <span class="mx-2">/</span>
+        <a href="{% url 'venues:venue_detail' venue.slug %}" class="hover:text-indigo-600">{{ venue.name }}</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-700">Book Now</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left column - Booking Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-6">Book {{ venue.name }}</h1>
+                    
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <!-- Form errors -->
+                        {% if form.errors %}
+                        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+                            <strong class="font-bold">Please correct the following errors:</strong>
+                            <ul class="mt-2 list-disc list-inside">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Event Details Section -->
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-700 mb-4">Event Details</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="{{ form.event_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Event Date*
+                                    </label>
+                                    <input type="date" id="{{ form.event_date.id_for_label }}" name="{{ form.event_date.name }}" 
+                                           class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                           required min="{{ today|date:'Y-m-d' }}">
+                                </div>
+                                <div>
+                                    <label for="{{ form.event_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Event Type*
+                                    </label>
+                                    <select id="{{ form.event_type.id_for_label }}" name="{{ form.event_type.name }}"
+                                           class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                           required>
+                                        <option value="">Select an event type</option>
+                                        <option value="Wedding">Wedding</option>
+                                        <option value="Birthday Party">Birthday Party</option>
+                                        <option value="Corporate Event">Corporate Event</option>
+                                        <option value="Conference">Conference</option>
+                                        <option value="Seminar">Seminar</option>
+                                        <option value="Product Launch">Product Launch</option>
+                                        <option value="Graduation Party">Graduation Party</option>
+                                        <option value="Anniversary">Anniversary</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label for="{{ form.start_time.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Start Time*
+                                    </label>
+                                    <select id="{{ form.start_time.id_for_label }}" name="{{ form.start_time.name }}" 
+                                           class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                           required>
+                                        <option value="08:00:00">8:00 AM</option>
+                                        <option value="09:00:00">9:00 AM</option>
+                                        <option value="10:00:00">10:00 AM</option>
+                                        <option value="11:00:00">11:00 AM</option>
+                                        <option value="12:00:00">12:00 PM</option>
+                                        <option value="13:00:00">1:00 PM</option>
+                                        <option value="14:00:00">2:00 PM</option>
+                                        <option value="15:00:00">3:00 PM</option>
+                                        <option value="16:00:00">4:00 PM</option>
+                                        <option value="17:00:00">5:00 PM</option>
+                                        <option value="18:00:00">6:00 PM</option>
+                                        <option value="19:00:00">7:00 PM</option>
+                                        <option value="20:00:00">8:00 PM</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="{{ form.end_time.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                        End Time*
+                                    </label>
+                                    <select id="{{ form.end_time.id_for_label }}" name="{{ form.end_time.name }}" 
+                                           class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                           required>
+                                        <option value="12:00:00">12:00 PM</option>
+                                        <option value="13:00:00">1:00 PM</option>
+                                        <option value="14:00:00">2:00 PM</option>
+                                        <option value="15:00:00">3:00 PM</option>
+                                        <option value="16:00:00">4:00 PM</option>
+                                        <option value="17:00:00">5:00 PM</option>
+                                        <option value="18:00:00">6:00 PM</option>
+                                        <option value="19:00:00">7:00 PM</option>
+                                        <option value="20:00:00">8:00 PM</option>
+                                        <option value="21:00:00">9:00 PM</option>
+                                        <option value="22:00:00">10:00 PM</option>
+                                        <option value="23:00:00">11:00 PM</option>
+                                        <option value="00:00:00">12:00 AM</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Guest Information -->
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-700 mb-4">Guest Information</h2>
+                            <div>
+                                <label for="{{ form.guest_count.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Number of Guests*
+                                </label>
+                                <input type="number" id="{{ form.guest_count.id_for_label }}" name="{{ form.guest_count.name }}" 
+                                       class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                       min="1" max="{{ venue.capacity }}" required>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    This venue can accommodate up to {{ venue.capacity }} guests
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-700 mb-4">Contact Information</h2>
+                            <div>
+                                <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Phone Number*
+                                </label>
+                                <input type="tel" id="{{ form.phone_number.id_for_label }}" name="{{ form.phone_number.name }}" 
+                                       class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                       required placeholder="Your contact number">
+                                <p class="text-sm text-gray-500 mt-1">
+                                    Please provide a number where we can reach you regarding your booking
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Special Requests -->
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-700 mb-4">Special Requests</h2>
+                            <div>
+                                <label for="{{ form.special_requests.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Additional Requests (optional)
+                                </label>
+                                <textarea id="{{ form.special_requests.id_for_label }}" name="{{ form.special_requests.name }}" rows="4"
+                                       class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                       placeholder="Let us know if you have any specific requirements or requests..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="pt-4">
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm">
+                                Continue to Services
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right column - Venue Summary -->
+        <div>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden sticky top-4">
+                <div class="h-48 overflow-hidden">
+                    {% if venue.main_photo %}
+                    <img src="{{ venue.main_photo.image.url }}" alt="{{ venue.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+                         alt="{{ venue.name }}" class="w-full h-full object-cover">
+                    {% endif %}
+                </div>
+                <div class="p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">{{ venue.name }}</h2>
+                    <p class="text-gray-600 mb-4 flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {{ venue.address }}
+                    </p>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Price per hour</span>
+                            <span class="text-gray-900">${{ venue.price_per_hour }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Capacity</span>
+                            <span class="text-gray-900">{{ venue.capacity }} guests</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Category</span>
+                            <span class="text-gray-900">{{ venue.category.name }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-gray-200 pt-4">
+                        <h3 class="font-medium text-gray-700 mb-2">Available Amenities</h3>
+                        <ul class="space-y-2">
+                            {% for amenity in venue.amenities.all %}
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                {{ amenity.name }}
+                            </li>
+                            {% empty %}
+                            <li class="text-gray-500">No amenities listed</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <a href="{% url 'venues:venue_detail' venue.slug %}" class="text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                            </svg>
+                            Back to venue details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

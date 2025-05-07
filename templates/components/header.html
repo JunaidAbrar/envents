@@ -1,0 +1,96 @@
+<header class="bg-gray-800 text-white shadow-md">
+    <nav class="container mx-auto px-4 py-3">
+        <div class="flex items-center justify-between">
+            <a class="text-xl font-bold" href="/">Envents</a>
+            
+            <!-- Mobile menu button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white hover:text-gray-300 focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex md:items-center md:justify-between md:flex-1 ml-10">
+                <div class="flex space-x-4">
+                    <a class="text-white hover:text-gray-300 px-3 py-2 rounded-md" href="/">Home</a>
+                    <a class="text-white hover:text-gray-300 px-3 py-2 rounded-md" href="/about/">About Us</a>
+                    <a class="text-white hover:text-gray-300 px-3 py-2 rounded-md" href="/plan-event/">Plan Your Event</a>
+                    <a class="text-white hover:text-gray-300 px-3 py-2 rounded-md" href="/services/">Other Services</a>
+                    <a class="text-white hover:text-gray-300 px-3 py-2 rounded-md" href="/business/">List Your Business</a>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="mx-4 flex-grow max-w-md">
+                    <form action="/venues/search/" method="GET" class="flex items-center">
+                        <input type="text" name="q" placeholder="Search for venues..." class="px-4 py-1 rounded-l-md text-gray-800 w-full focus:outline-none">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-4 py-1 rounded-r-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="flex space-x-4">
+                    {% if user.is_authenticated %}
+                        <a class="text-white hover:text-gray-300 px-3 py-2 rounded-md" href="/accounts/profile/">My Profile</a>
+                        <form method="post" action="/accounts/logout/" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">Logout</button>
+                        </form>
+                    {% else %}
+                        <a class="text-white hover:text-gray-300 px-3 py-2 rounded-md" href="/accounts/login/">Login</a>
+                        <a class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md" href="/accounts/register/">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a class="text-white hover:bg-gray-700 block px-3 py-2 rounded-md" href="/">Home</a>
+                <a class="text-white hover:bg-gray-700 block px-3 py-2 rounded-md" href="/about/">About Us</a>
+                <a class="text-white hover:bg-gray-700 block px-3 py-2 rounded-md" href="/plan-event/">Plan Your Event</a>
+                <a class="text-white hover:bg-gray-700 block px-3 py-2 rounded-md" href="/services/">Other Services</a>
+                <a class="text-white hover:bg-gray-700 block px-3 py-2 rounded-md" href="/business/">List Your Business</a>
+                
+                <!-- Mobile Search -->
+                <form action="/venues/search/" method="GET" class="mt-3 flex">
+                    <input type="text" name="q" placeholder="Search for venues..." class="px-4 py-2 rounded-l-md text-gray-800 w-full focus:outline-none">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-r-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </form>
+                
+                {% if user.is_authenticated %}
+                    <a class="text-white hover:bg-gray-700 block px-3 py-2 rounded-md" href="/accounts/profile/">My Profile</a>
+                    <form method="post" action="/accounts/logout/" class="block mt-2">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white block w-full px-3 py-2 rounded-md">Logout</button>
+                    </form>
+                {% else %}
+                    <a class="text-white hover:bg-gray-700 block px-3 py-2 rounded-md" href="/accounts/login/">Login</a>
+                    <a class="bg-blue-600 hover:bg-blue-700 text-white block px-3 py-2 rounded-md" href="/accounts/register/">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+</header>
+
+<script>
+    // Toggle mobile menu
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+</script>

@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ venue.name }} | Envents{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-8">
+    <!-- Breadcrumbs -->
+    <nav class="mb-4">
+        <ol class="flex text-sm text-gray-600">
+            <li><a href="{% url 'home' %}" class="hover:text-indigo-600">Home</a></li>
+            <li><span class="mx-2">/</span></li>
+            <li><a href="{% url 'venues:venue_list' %}" class="hover:text-indigo-600">Venues</a></li>
+            <li><span class="mx-2">/</span></li>
+            <li><a href="{% url 'venues:venue_list_by_category' venue.category.slug %}" class="hover:text-indigo-600">{{ venue.category.name }}</a></li>
+            <li><span class="mx-2">/</span></li>
+            <li class="text-indigo-600 font-medium">{{ venue.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+        <!-- Venue Photos Gallery -->
+        <div class="relative">
+            {% if venue.photos.all %}
+                <div id="venue-gallery" class="h-96 w-full relative">
+                    {% for photo in venue.photos.all %}
+                        <img src="{{ photo.image.url }}" alt="{{ photo.caption|default:venue.name }}" class="w-full h-full object-cover absolute inset-0 {% if not forloop.first %}opacity-0{% endif %} transition-opacity duration-500">
+                    {% endfor %}
+                </div>
+                {% if venue.photos.count > 1 %}
+                    <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
+                        <button id="prev-photo" class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2">
+                        <button id="next-photo" class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                        {% for photo in venue.photos.all %}
+                            <span class="w-2 h-2 rounded-full bg-white opacity-50 {% if forloop.first %}opacity-100{% endif %}" data-index="{{ forloop.counter0 }}"></span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="h-96 w-full flex items-center justify-center bg-gray-200 text-gray-500">
+                    No photos available
+                </div>
+            {% endif %}
+            {% if venue.is_featured %}
+                <div class="absolute top-4 left-4">
+                    <span class="bg-yellow-400 text-yellow-800 text-sm px-3 py-1 rounded-md font-semibold">Featured</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Venue Details -->
+        <div class="p-6">
+            <div class="flex flex-col md:flex-row justify-between items-start">
+                <div>
+                    <h1 class="text-3xl font-bold">{{ venue.name }}</h1>
+                    <p class="text-gray-600 mb-2">
+                        <span class="inline-block mr-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            {{ venue.address }}, {{ venue.city }}
+                        </span>
+                        <span class="inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            Up to {{ venue.capacity }} guests
+                        </span>
+                    </p>
+                    
+                    <div class="flex items-center mt-2 mb-4">
+                        <div class="flex">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= avg_rating %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                {% else %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="ml-1 text-gray-600">{{ avg_rating|floatformat:1 }} ({{ reviews.count }} reviews)</span>
+                    </div>
+                </div>
+                <div class="flex mt-4 md:mt-0">
+                    <form method="post" action="{% url 'venues:toggle_favorite' venue.slug %}" class="mr-2">
+                        {% csrf_token %}
+                        <button type="submit" class="flex items-center justify-center w-10 h-10 rounded-full border border-indigo-600 hover:bg-indigo-50">
+                            {% if is_favorite %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                </svg>
+                            {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                            {% endif %}
+                        </button>
+                    </form>
+                    <a href="{% url 'bookings:create_booking' venue.slug %}" class="inline-flex items-center bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700">
+                        Book Now
+                    </a>
+                </div>
+            </div>
+            
+            <hr class="my-6">
+            
+            <!-- Price & Booking Info -->
+            <div class="flex flex-col md:flex-row mb-8">
+                <div class="md:w-2/3 md:pr-8">
+                    <h2 class="text-xl font-semibold mb-4">About This Venue</h2>
+                    <div class="prose max-w-none">
+                        <p>{{ venue.description|linebreaks }}</p>
+                    </div>
+                    
+                    <!-- Amenities -->
+                    {% if venue.amenities.exists %}
+                        <h3 class="text-lg font-semibold mt-6 mb-3">Amenities</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {% for amenity in venue.amenities.all %}
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span>{{ amenity.name }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="md:w-1/3 mt-6 md:mt-0 bg-gray-50 p-4 rounded-lg">
+                    <div class="text-xl font-semibold mb-2 text-gray-800">${{ venue.price_per_hour }} <span class="text-lg font-normal">/ hour</span></div>
+                    
+                    <div class="text-gray-600 mb-4">
+                        <p class="mb-1"><strong>Category:</strong> {{ venue.category.name }}</p>
+                        <p><strong>Capacity:</strong> Up to {{ venue.capacity }} guests</p>
+                    </div>
+                    
+                    <a href="{% url 'bookings:create_booking' venue.slug %}" class="block w-full bg-indigo-600 text-white text-center py-2 px-4 rounded-md hover:bg-indigo-700">
+                        Book This Venue
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Reviews Section -->
+            <div>
+                <h2 class="text-xl font-semibold mb-4">Reviews</h2>
+                
+                <!-- Review Form -->
+                {% if user.is_authenticated %}
+                    <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium mb-3">Write a Review</h3>
+                        <form method="post" action="{% url 'venues:submit_review' venue.slug %}" class="space-y-4">
+                            {% csrf_token %}
+                            {{ review_form.non_field_errors }}
+                            
+                            <div>
+                                <label for="{{ review_form.rating.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+                                {{ review_form.rating }}
+                                {% if review_form.rating.errors %}
+                                    <p class="text-red-600 text-xs italic">{{ review_form.rating.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ review_form.comment.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+                                {{ review_form.comment }}
+                                {% if review_form.comment.errors %}
+                                    <p class="text-red-600 text-xs italic">{{ review_form.comment.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">
+                                    Submit Review
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="mb-6 bg-gray-50 p-4 rounded-lg text-center">
+                        <p>Please <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="text-indigo-600 hover:underline">log in</a> to leave a review.</p>
+                    </div>
+                {% endif %}
+                
+                <!-- Review List -->
+                {% if reviews %}
+                    <div class="space-y-4">
+                        {% for review in reviews %}
+                            <div class="border-b pb-4 {% if not forloop.last %}mb-4{% endif %}">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="flex items-center mb-1">
+                                            <div class="flex">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= review.rating %}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                        </svg>
+                                                    {% else %}
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                        </svg>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <p class="ml-2 font-medium">{{ review.user.get_full_name|default:review.user.username }}</p>
+                                        </div>
+                                        <p class="text-sm text-gray-600">{{ review.created_at|date:"F j, Y" }}</p>
+                                    </div>
+                                    
+                                    <!-- Edit Review Option for Review Owner -->
+                                    {% if user == review.user %}
+                                        <div>
+                                            <button class="text-sm text-indigo-600 hover:text-indigo-800">Edit</button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <p class="mt-2">{{ review.comment }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                        <p class="text-gray-600">There are no reviews for this venue yet. Be the first to leave one!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Related Venues -->
+    {% if related_venues %}
+        <div class="mt-10">
+            <h2 class="text-2xl font-bold mb-6">Similar Venues</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {% for related_venue in related_venues %}
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                        <div class="h-48">
+                            {% if related_venue.main_photo %}
+                                <img src="{{ related_venue.main_photo.image.url }}" alt="{{ related_venue.name }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <span class="text-gray-500">No image available</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-lg mb-1">{{ related_venue.name }}</h3>
+                            <p class="text-gray-600 text-sm mb-2">
+                                <span class="inline-block mr-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    {{ related_venue.city }}
+                                </span>
+                                <span class="inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    Up to {{ related_venue.capacity }} guests
+                                </span>
+                            </p>
+                            <p class="text-gray-800 font-semibold">${{ related_venue.price_per_hour }} / hour</p>
+                            
+                            <div class="mt-3">
+                                <a href="{% url 'venues:venue_detail' related_venue.slug %}" class="text-indigo-600 hover:text-indigo-800 font-medium">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+    // Simple gallery slideshow script
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('#venue-gallery img');
+        const indicators = document.querySelectorAll('.absolute.bottom-4 span');
+        const prevBtn = document.getElementById('prev-photo');
+        const nextBtn = document.getElementById('next-photo');
+        
+        if (!images.length || images.length <= 1) return;
+        
+        let currentIndex = 0;
+        
+        function showImage(index) {
+            images.forEach((img, i) => {
+                img.classList.toggle('opacity-0', i !== index);
+            });
+            
+            indicators.forEach((dot, i) => {
+                dot.classList.toggle('opacity-100', i === index);
+                dot.classList.toggle('opacity-50', i !== index);
+            });
+            
+            currentIndex = index;
+        }
+        
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener('click', function() {
+                const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+                showImage(newIndex);
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                const newIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
+                showImage(newIndex);
+            });
+        }
+        
+        indicators.forEach((dot, i) => {
+            dot.addEventListener('click', function() {
+                showImage(i);
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

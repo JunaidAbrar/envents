@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Favorites | Envents{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-8">
+    <h1 class="text-3xl font-bold mb-8">My Favorites</h1>
+    
+    <!-- Favorite Venues -->
+    <div class="mb-10">
+        <h2 class="text-2xl font-semibold mb-4">Favorite Venues</h2>
+        
+        {% if favorite_venues %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for fav in favorite_venues %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="relative h-48">
+                        {% if fav.venue.main_photo %}
+                            <img src="{{ fav.venue.main_photo.image.url }}" alt="{{ fav.venue.name }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <span class="text-gray-500">No image available</span>
+                            </div>
+                        {% endif %}
+                        <div class="absolute top-2 right-2">
+                            <form method="post" action="{% url 'venues:toggle_favorite' fav.venue.slug %}">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-white p-2 rounded-full shadow hover:bg-gray-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">{{ fav.venue.name }}</h3>
+                        <p class="text-gray-600 text-sm mb-2">
+                            <span class="inline-block mr-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                {{ fav.venue.city }}
+                            </span>
+                            <span class="inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                Up to {{ fav.venue.capacity }} guests
+                            </span>
+                        </p>
+                        <p class="text-gray-800 font-semibold">${{ fav.venue.price_per_hour }} / hour</p>
+                        
+                        <div class="mt-3">
+                            <a href="{% url 'venues:venue_detail' fav.venue.slug %}" class="text-indigo-600 hover:text-indigo-800 font-medium">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-gray-50 p-6 rounded-lg text-center">
+                <p class="text-gray-600 mb-3">You haven't added any venues to your favorites yet.</p>
+                <a href="{% url 'venues:venue_list' %}" class="inline-block bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">Browse Venues</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Favorite Services -->
+    <div>
+        <h2 class="text-2xl font-semibold mb-4">Favorite Services</h2>
+        
+        {% if favorite_services %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for fav in favorite_services %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="relative h-48">
+                        {% if fav.service.main_photo %}
+                            <img src="{{ fav.service.main_photo.image.url }}" alt="{{ fav.service.name }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <span class="text-gray-500">No image available</span>
+                            </div>
+                        {% endif %}
+                        <div class="absolute top-2 right-2">
+                            <form method="post" action="{% url 'services:toggle_favorite' fav.service.slug %}">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-white p-2 rounded-full shadow hover:bg-gray-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="font-semibold text-lg">{{ fav.service.name }}</h3>
+                            <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">{{ fav.service.category.name }}</span>
+                        </div>
+                        <p class="text-gray-800 font-semibold">${{ fav.service.base_price }} <span class="text-gray-600 font-normal text-sm">{{ fav.service.price_type }}</span></p>
+                        <p class="text-gray-600 text-sm mb-2 truncate">{{ fav.service.description|truncatechars:100 }}</p>
+                        
+                        <div class="mt-3">
+                            <a href="{% url 'services:service_detail' fav.service.slug %}" class="text-indigo-600 hover:text-indigo-800 font-medium">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-gray-50 p-6 rounded-lg text-center">
+                <p class="text-gray-600 mb-3">You haven't added any services to your favorites yet.</p>
+                <a href="{% url 'services:service_list' %}" class="inline-block bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">Browse Services</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
