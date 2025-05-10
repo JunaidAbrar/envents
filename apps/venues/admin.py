@@ -26,14 +26,18 @@ class VenueReviewInline(admin.TabularInline):
 
 @admin.register(Venue)
 class VenueAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'city', 'capacity', 'price_per_hour', 'status', 'is_featured')
+    list_display = ('name', 'get_categories', 'city', 'capacity', 'price_per_hour', 'status', 'is_featured')
     list_filter = ('status', 'is_featured', 'city', 'category')
     search_fields = ('name', 'description', 'address', 'city')
     prepopulated_fields = {'slug': ('name',)}
     inlines = [VenuePhotoInline, DisabledDateInline, VenueReviewInline]
-    filter_horizontal = ('amenities',)
+    filter_horizontal = ('amenities', 'category')
     list_editable = ('status', 'is_featured')
     actions = ['approve_venues', 'reject_venues', 'feature_venues', 'unfeature_venues']
+    
+    def get_categories(self, obj):
+        return ", ".join([cat.name for cat in obj.category.all()])
+    get_categories.short_description = "Categories"
     
     def approve_venues(self, request, queryset):
         queryset.update(status='approved')

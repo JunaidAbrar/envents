@@ -41,7 +41,8 @@ class Venue(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField()
-    category = models.ForeignKey(VenueCategory, on_delete=models.SET_NULL, null=True, related_name='venues')
+    # Changed from ForeignKey to ManyToManyField
+    category = models.ManyToManyField(VenueCategory, related_name='venues')
     location = models.CharField(max_length=255)
     city = models.CharField(max_length=100, db_index=True)
     address = models.TextField()

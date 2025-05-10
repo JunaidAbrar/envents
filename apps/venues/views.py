@@ -3,24 +3,63 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Avg
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from .models import Venue, VenueCategory, VenueReview, FavoriteVenue
+from .models import Venue, VenueCategory, VenueReview, FavoriteVenue, Amenity
 
 def venue_list(request):
     venues_queryset = Venue.objects.filter(status='approved')
     all_categories = VenueCategory.objects.all()
+    all_amenities = Amenity.objects.all()
     
     # Get all distinct cities from venues
     cities = Venue.objects.filter(status='approved').values_list('city', flat=True).distinct()
     
+    # Filter by categories
+    categories = request.GET.getlist('categories')
+    if categories:
+        venues_queryset = venues_queryset.filter(category__id__in=categories).distinct()
+    
     # Filter by capacity
-    min_capacity = request.GET.get('min_capacity')
-    if min_capacity:
+    min_capacity = request.GET.get('capacity')
+    if min_capacity and min_capacity != '1000+':  # Handle the 1000+ special case
         venues_queryset = venues_queryset.filter(capacity__gte=min_capacity)
+    elif min_capacity == '1000+':
+        venues_queryset = venues_queryset.filter(capacity__gte=1000)
+    
+    # Filter by price range
+    min_price = request.GET.get('min_price')
+    if min_price:
+        venues_queryset = venues_queryset.filter(price_per_hour__gte=min_price)
+    
+    max_price = request.GET.get('max_price')
+    if max_price:
+        venues_queryset = venues_queryset.filter(price_per_hour__lte=max_price)
     
     # Filter by city
     city = request.GET.get('city')
     if city:
         venues_queryset = venues_queryset.filter(city__iexact=city)
+    
+    # Filter by amenities
+    amenities = request.GET.getlist('amenities')
+    if amenities:
+        venues_queryset = venues_queryset.filter(amenities__id__in=amenities).distinct()
+    
+    # For home page search compatibility
+    # Redirect from the home search with location, guests and type parameters
+    location = request.GET.get('location')
+    if location:
+        venues_queryset = venues_queryset.filter(city__iexact=location)
+        city = location  # Set city for template rendering
+    
+    guests = request.GET.get('guests')
+    if guests:
+        venues_queryset = venues_queryset.filter(capacity__gte=guests)
+        min_capacity = guests  # Set min_capacity for template rendering
+    
+    event_type = request.GET.get('type')
+    # Note: If you want to filter by event type, you would need to implement
+    # that logic here. This might require adding an event_type field to the 
+    # Venue model or relating it to categories.
     
     # Sorting
     sort = request.GET.get('sort', 'name')
@@ -60,7 +99,7 @@ def venue_list(request):
         'city': city,
         'sort': sort,
         'cities': cities,
-        'amenities': [],  # Providing an empty list since VenueAmenity doesn't exist
+        'amenities': all_amenities,  # Provide actual amenities list
         'user_favorites': user_favorites,
         'is_paginated': True if paginator.num_pages > 1 else False,
         'page_obj': venues,

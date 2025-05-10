@@ -11,16 +11,23 @@ class VenueSubmissionForm(forms.ModelForm):
         required=False
     )
     
+    # Add multiple category selection
+    categories = forms.ModelMultipleChoiceField(
+        queryset=VenueCategory.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=True,
+        help_text="Select all categories that apply to your venue"
+    )
+    
     class Meta:
         model = Venue
         fields = [
-            'name', 'description', 'category', 'location', 'city', 
+            'name', 'description', 'categories', 'location', 'city', 
             'address', 'capacity', 'price_per_hour', 'amenities'
         ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Venue Name'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'category': forms.Select(attrs={'class': 'form-control'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'General Location (e.g., Downtown)'}),
             'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
@@ -31,16 +38,19 @@ class VenueSubmissionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.owner = kwargs.pop('owner', None)
         super().__init__(*args, **kwargs)
-        self.fields['category'].queryset = VenueCategory.objects.all()
-        self.fields['category'].empty_label = "Select a category"
+        # No need for initializing category field as we're using categories field now
     
     def save(self, commit=True):
         venue = super().save(commit=False)
         venue.owner = self.owner
         venue.status = 'pending'  # Default status is pending approval
+        
         if commit:
             venue.save()
-            self.save_m2m()  # Save many-to-many relationships
+            # Save the categories many-to-many relationship
+            venue.category.set(self.cleaned_data['categories'])
+            # Save other many-to-many relationships
+            self.save_m2m()
         return venue
 
 
