@@ -12,7 +12,13 @@
             <li><span class="mx-2">/</span></li>
             <li><a href="{% url 'venues:venue_list' %}" class="hover:text-indigo-600">Venues</a></li>
             <li><span class="mx-2">/</span></li>
-            <li><a href="{% url 'venues:venue_list_by_category' venue.category.slug %}" class="hover:text-indigo-600">{{ venue.category.name }}</a></li>
+            {% with primary_category=venue.category.first %}
+                {% if primary_category %}
+                <li><a href="{% url 'venues:venue_list_by_category' primary_category.slug %}" class="hover:text-indigo-600">{{ primary_category.name }}</a></li>
+                {% else %}
+                <li><a href="{% url 'venues:venue_list' %}" class="hover:text-indigo-600">Categories</a></li>
+                {% endif %}
+            {% endwith %}
             <li><span class="mx-2">/</span></li>
             <li class="text-indigo-600 font-medium">{{ venue.name }}</li>
         </ol>
@@ -75,7 +81,7 @@
                         </span>
                         <span class="inline-block">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                             Up to {{ venue.capacity }} guests
                         </span>
@@ -146,10 +152,14 @@
                 </div>
                 
                 <div class="md:w-1/3 mt-6 md:mt-0 bg-gray-50 p-4 rounded-lg">
-                    <div class="text-xl font-semibold mb-2 text-gray-800">${{ venue.price_per_hour }} <span class="text-lg font-normal">/ hour</span></div>
+                    <div class="text-xl font-semibold mb-2 text-gray-800">৳{{ venue.price_per_hour }} <span class="text-lg font-normal">/ hour</span></div>
                     
                     <div class="text-gray-600 mb-4">
-                        <p class="mb-1"><strong>Category:</strong> {{ venue.category.name }}</p>
+                        <p class="mb-1"><strong>Categories:</strong> 
+                            {% for category in venue.category.all %}
+                                {{ category.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
                         <p><strong>Capacity:</strong> Up to {{ venue.capacity }} guests</p>
                     </div>
                     
@@ -280,7 +290,7 @@
                                     Up to {{ related_venue.capacity }} guests
                                 </span>
                             </p>
-                            <p class="text-gray-800 font-semibold">${{ related_venue.price_per_hour }} / hour</p>
+                            <p class="text-gray-800 font-semibold">৳{{ related_venue.price_per_hour }} / hour</p>
                             
                             <div class="mt-3">
                                 <a href="{% url 'venues:venue_detail' related_venue.slug %}" class="text-indigo-600 hover:text-indigo-800 font-medium">View Details</a>

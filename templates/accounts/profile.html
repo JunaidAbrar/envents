@@ -86,6 +86,75 @@
                     </div>
                 {% endif %}
             </div>
+
+            <!-- Favorites Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Favorite Venues -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Favorite Venues</h3>
+                        <a href="{% url 'accounts:favorites' %}" class="text-sm text-indigo-600 hover:underline">See all</a>
+                    </div>
+                    {% if favorite_venues %}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {% for fav in favorite_venues %}
+                                <div class="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                                    {% if fav.venue.main_photo %}
+                                        <img src="{{ fav.venue.main_photo.image.url }}" alt="{{ fav.venue.name }}" class="w-full h-32 object-cover">
+                                    {% else %}
+                                        <div class="w-full h-32 bg-gray-200 flex items-center justify-center">
+                                            <span class="text-gray-500">No image</span>
+                                        </div>
+                                    {% endif %}
+                                    <div class="p-3">
+                                        <h4 class="font-medium text-gray-900 mb-1">{{ fav.venue.name }}</h4>
+                                        <p class="text-sm text-gray-600 mb-2">{{ fav.venue.city }}</p>
+                                        <a href="{{ fav.venue.get_absolute_url }}" class="text-xs text-indigo-600 hover:underline">View details</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="bg-gray-50 p-4 rounded text-center">
+                            <p class="text-gray-600">You don't have any favorite venues yet.</p>
+                            <a href="{% url 'venues:venue_list' %}" class="text-indigo-600 hover:underline">Browse venues</a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Favorite Services -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Favorite Services</h3>
+                        <a href="{% url 'accounts:favorites' %}" class="text-sm text-indigo-600 hover:underline">See all</a>
+                    </div>
+                    {% if favorite_services %}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {% for fav in favorite_services %}
+                                <div class="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                                    {% if fav.service.main_photo %}
+                                        <img src="{{ fav.service.main_photo.image.url }}" alt="{{ fav.service.name }}" class="w-full h-32 object-cover">
+                                    {% else %}
+                                        <div class="w-full h-32 bg-gray-200 flex items-center justify-center">
+                                            <span class="text-gray-500">No image</span>
+                                        </div>
+                                    {% endif %}
+                                    <div class="p-3">
+                                        <h4 class="font-medium text-gray-900 mb-1">{{ fav.service.name }}</h4>
+                                        <p class="text-sm text-gray-600 mb-2">{{ fav.service.category.name }}</p>
+                                        <a href="{{ fav.service.get_absolute_url }}" class="text-xs text-indigo-600 hover:underline">View details</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="bg-gray-50 p-4 rounded text-center">
+                            <p class="text-gray-600">You don't have any favorite services yet.</p>
+                            <a href="{% url 'services:service_list' %}" class="text-indigo-600 hover:underline">Browse services</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 </div>

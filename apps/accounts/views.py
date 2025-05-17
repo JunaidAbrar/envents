@@ -19,11 +19,41 @@ def register(request):
 
 @login_required
 def profile(request):
-    user_bookings = Booking.objects.filter(user=request.user).order_by('-created_at')[:5]
+    from django.utils import timezone
+    import datetime
+    
+    # Get all user bookings and count
+    all_user_bookings = Booking.objects.filter(user=request.user)
+    booking_count = all_user_bookings.count()
+    
+    # Get upcoming bookings (bookings with event_date in the future)
+    today = timezone.now().date()
+    upcoming_bookings = all_user_bookings.filter(
+        event_date__gte=today
+    ).order_by('event_date', 'start_time')[:5]
+    
+    # Get recent bookings for backward compatibility
+    recent_bookings = all_user_bookings.order_by('-created_at')[:5]
+    
+    # Get favorite venues and services (not just counts)
+    favorite_venues = request.user.favorite_venues.select_related('venue').all()[:4]
+    favorite_services = request.user.favorite_services.select_related('service').all()[:4]
+    
+    # Get counts
+    favorite_venues_count = request.user.favorite_venues.count()
+    favorite_services_count = request.user.favorite_services.count()
+    
     context = {
         'user': request.user,
-        'recent_bookings': user_bookings
+        'recent_bookings': recent_bookings,
+        'upcoming_bookings': upcoming_bookings,
+        'booking_count': booking_count,
+        'favorite_venues': favorite_venues,
+        'favorite_services': favorite_services,
+        'favorite_venues_count': favorite_venues_count,
+        'favorite_services_count': favorite_services_count
     }
+    
     return render(request, 'accounts/profile.html', context)
 
 @login_required

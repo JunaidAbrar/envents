@@ -155,9 +155,9 @@
                                         <div class="text-sm text-gray-900">{{ service.quantity }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">${{ service.price }}</div>
+                                        <div class="text-sm text-gray-900">৳{{ service.price }}</div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{ service.total_price|floatformat:2|default:"0.00" }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">৳{{ service.total_price|floatformat:2|default:"0.00" }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -224,7 +224,7 @@
                     <div class="space-y-3 mb-6">
                         <div class="flex justify-between">
                             <span class="text-gray-600">Venue Cost</span>
-                            <span class="text-gray-900">${{ booking.venue_cost|floatformat:2 }}</span>
+                            <span class="text-gray-900">৳{{ booking.venue_cost|floatformat:2 }}</span>
                         </div>
                         
                         {% if booking_services %}
@@ -232,20 +232,20 @@
                         {% for service in booking_services %}
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-500">{{ service.service.name }} (x{{ service.quantity }})</span>
-                            <span class="text-gray-700">${{ service.total_price|floatformat:2 }}</span>
+                            <span class="text-gray-700">৳{{ service.total_price|floatformat:2 }}</span>
                         </div>
                         {% endfor %}
                         {% endif %}
                         
                         <div class="flex justify-between">
                             <span class="text-gray-600">Services Subtotal</span>
-                            <span class="text-gray-900">${{ booking.services_cost|floatformat:2 }}</span>
+                            <span class="text-gray-900">৳{{ booking.services_cost|floatformat:2 }}</span>
                         </div>
                         
                         <div class="border-t border-gray-200 pt-3 mt-3">
                             <div class="flex justify-between text-lg font-semibold">
                                 <span class="text-gray-800">Estimated Total</span>
-                                <span class="text-indigo-600">${{ booking.total_cost|floatformat:2 }}</span>
+                                <span class="text-indigo-600">৳{{ booking.total_cost|floatformat:2 }}</span>
                             </div>
                         </div>
                     </div>

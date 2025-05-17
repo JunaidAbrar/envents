@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db.models import Q, Avg
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Venue, VenueCategory, VenueReview, FavoriteVenue, Amenity
+from .forms import VenueReviewForm
 
 def venue_list(request):
     venues_queryset = Venue.objects.filter(status='approved')
@@ -110,9 +111,11 @@ def venue_detail(request, slug):
     venue = get_object_or_404(Venue, slug=slug, status='approved')
     
     # Get related venues (same category)
+    # For many-to-many, get all venue's categories and find venues in any of those categories
+    venue_categories = venue.category.all()
     related_venues = Venue.objects.filter(
-        category=venue.category, status='approved'
-    ).exclude(id=venue.id)[:3]
+        category__in=venue_categories, status='approved'
+    ).exclude(id=venue.id).distinct()[:3]
     
     # Check if favorited
     is_favorite = False
@@ -172,9 +175,9 @@ def venue_search(request):
     
     if query:
         venues = Venue.objects.filter(
-            Q(name__icontains=query) |
+            (Q(name__icontains=query) |
             Q(description__icontains=query) |
-            Q(city__icontains=query),
+            Q(city__icontains=query)),
             status='approved'
         )
     
