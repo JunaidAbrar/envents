@@ -18,6 +18,11 @@ class Booking(models.Model):
         ('refunded', 'Refunded'),
     )
     
+    BOOKING_TYPE_CHOICES = (
+        ('venue', 'Venue Booking'),
+        ('service_only', 'Service Only'),
+    )
+    
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -26,8 +31,11 @@ class Booking(models.Model):
     venue = models.ForeignKey(
         Venue,
         on_delete=models.CASCADE,
-        related_name='bookings'
+        related_name='bookings',
+        null=True,  # Allow null for service-only bookings
+        blank=True  # Optional in forms
     )
+    booking_type = models.CharField(max_length=20, choices=BOOKING_TYPE_CHOICES, default='venue')
     event_date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -38,7 +46,7 @@ class Booking(models.Model):
     phone_number = models.CharField(max_length=20, blank=True, null=True)  # Made nullable for existing records
     
     # Pricing fields
-    venue_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    venue_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     services_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_cost = models.DecimalField(max_digits=10, decimal_places=2)
     
@@ -55,7 +63,10 @@ class Booking(models.Model):
         ]
     
     def __str__(self):
-        return f"Booking #{self.id} - {self.venue.name} on {self.event_date}"
+        if self.venue:
+            return f"Booking #{self.id} - {self.venue.name} on {self.event_date}"
+        else:
+            return f"Service Booking #{self.id} - {self.event_type} on {self.event_date}"
     
     def save(self, *args, **kwargs):
         # Calculate total cost before saving

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Book {{ venue.name }} - Envents{% endblock %}
+{% block title %}Book Services - Envents{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
@@ -9,11 +9,9 @@
     <div class="flex items-center text-sm text-gray-500 mb-6">
         <a href="{% url 'home' %}" class="hover:text-indigo-600">Home</a>
         <span class="mx-2">/</span>
-        <a href="{% url 'venues:venue_list' %}" class="hover:text-indigo-600">Venues</a>
+        <a href="{% url 'services:service_list' %}" class="hover:text-indigo-600">Services</a>
         <span class="mx-2">/</span>
-        <a href="{% url 'venues:venue_detail' venue.slug %}" class="hover:text-indigo-600">{{ venue.name }}</a>
-        <span class="mx-2">/</span>
-        <span class="text-gray-700">Book Now</span>
+        <span class="text-gray-700">Book Services</span>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -21,7 +19,7 @@
         <div class="lg:col-span-2">
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <div class="p-6">
-                    <h1 class="text-3xl font-bold text-gray-800 mb-6">Book {{ venue.name }}</h1>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-6">Book Services</h1>
                     
                     <form method="post" class="space-y-6">
                         {% csrf_token %}
@@ -42,9 +40,9 @@
                             </ul>
                         </div>
                         {% endif %}
-                        
+
                         <!-- Hidden booking type field -->
-                        <input type="hidden" name="booking_type" value="venue">
+                        <input type="hidden" name="booking_type" value="service_only">
                         
                         <!-- Event Details Section -->
                         <div>
@@ -135,10 +133,7 @@
                                 </label>
                                 <input type="number" id="{{ form.guest_count.id_for_label }}" name="{{ form.guest_count.name }}" 
                                        class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                       min="1" max="{{ venue.capacity }}" required>
-                                <p class="text-sm text-gray-500 mt-1">
-                                    This venue can accommodate up to {{ venue.capacity }} guests
-                                </p>
+                                       min="1" required>
                             </div>
                         </div>
 
@@ -182,64 +177,42 @@
             </div>
         </div>
         
-        <!-- Right column - Venue Summary -->
+        <!-- Right column - Service Booking Information -->
         <div>
             <div class="bg-white rounded-lg shadow-md overflow-hidden sticky top-4">
-                <div class="h-48 overflow-hidden">
-                    {% if venue.main_photo %}
-                    <img src="{{ venue.main_photo.image.url }}" alt="{{ venue.name }}" class="w-full h-full object-cover">
-                    {% else %}
-                    <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                         alt="{{ venue.name }}" class="w-full h-full object-cover">
-                    {% endif %}
-                </div>
                 <div class="p-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-2">{{ venue.name }}</h2>
-                    <p class="text-gray-600 mb-4 flex items-start">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        {{ venue.address }}
-                    </p>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Service-Only Booking</h2>
                     
-                    <div class="space-y-3 mb-6">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Price per hour</span>
-                            <span class="text-gray-900">৳{{ venue.price_per_hour }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Capacity</span>
-                            <span class="text-gray-900">{{ venue.capacity }} guests</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Category</span>
-                            <span class="text-gray-900">{{ venue.category.name }}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="border-t border-gray-200 pt-4">
-                        <h3 class="font-medium text-gray-700 mb-2">Available Amenities</h3>
-                        <ul class="space-y-2">
-                            {% for amenity in venue.amenities.all %}
-                            <li class="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                </svg>
-                                {{ amenity.name }}
-                            </li>
-                            {% empty %}
-                            <li class="text-gray-500">No amenities listed</li>
-                            {% endfor %}
+                    <div class="text-gray-600 space-y-4">
+                        <p>You are creating a booking for services without a venue. This is ideal if:</p>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li>You already have a venue arranged elsewhere</li>
+                            <li>The event is at your own location</li>
+                            <li>You only need specific services like catering, photography, etc.</li>
                         </ul>
+                        
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mt-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-blue-700">
+                                        After creating your booking, you'll be able to add the services you need.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="mt-6">
-                        <a href="{% url 'venues:venue_detail' venue.slug %}" class="text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
+                        <a href="{% url 'services:service_list' %}" class="text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
                             </svg>
-                            Back to venue details
+                            Browse services
                         </a>
                     </div>
                 </div>

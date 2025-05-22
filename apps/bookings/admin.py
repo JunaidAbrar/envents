@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import mark_safe
 from .models import Booking, BookingService
 
 class BookingServiceInline(admin.TabularInline):
@@ -8,7 +9,7 @@ class BookingServiceInline(admin.TabularInline):
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'venue', 'event_date', 'status', 'payment_status', 'total_cost')
+    list_display = ('id', 'get_booking_link', 'user', 'venue', 'event_date', 'phone_number', 'status', 'payment_status', 'total_cost')
     list_filter = ('status', 'payment_status', 'event_date')
     search_fields = ('venue__name', 'user__username', 'user__email', 'event_type')
     date_hierarchy = 'event_date'
@@ -17,10 +18,13 @@ class BookingAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
     fieldsets = (
         (None, {
-            'fields': ('user', 'venue', 'status')
+            'fields': ('user', 'venue', 'booking_type', 'status')
         }),
         ('Event Details', {
             'fields': ('event_date', 'start_time', 'end_time', 'guest_count', 'event_type')
+        }),
+        ('Contact Information', {
+            'fields': ('phone_number',)
         }),
         ('Payment Information', {
             'fields': ('payment_status', 'venue_cost', 'services_cost', 'total_cost')
@@ -31,6 +35,11 @@ class BookingAdmin(admin.ModelAdmin):
     )
     actions = ['confirm_bookings', 'cancel_bookings', 'mark_as_completed', 
               'mark_as_unpaid', 'mark_as_partially_paid', 'mark_as_fully_paid', 'mark_as_refunded']
+    
+    def get_booking_link(self, obj):
+        """Create a clickable link to the booking detail"""
+        return mark_safe(f'<a href="{obj.id}/change/">Booking #{obj.id} - View Details</a>')
+    get_booking_link.short_description = 'Booking'
     
     # Booking status actions
     def confirm_bookings(self, request, queryset):

@@ -160,3 +160,26 @@ def confirm_booking(request, booking_id):
         'booking': booking,
         'booking_services': booking.booking_services.all()
     })
+
+@login_required
+def create_service_booking(request):
+    """Create a new service-only booking (without requiring a venue)"""
+    if request.method == 'POST':
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            booking = form.save(commit=False)
+            booking.user = request.user
+            booking.booking_type = 'service_only'
+            booking.venue = None  # No venue for service-only bookings
+            booking.venue_cost = 0  # No venue cost
+            booking.total_cost = 0  # Will be updated when services are added
+            booking.save()
+            
+            messages.success(request, f"Service booking created successfully! Please add services to your booking.")
+            return redirect('bookings:add_services', booking_id=booking.id)
+    else:
+        form = BookingForm(initial={'booking_type': 'service_only'})
+    
+    return render(request, 'bookings/create_service_booking.html', {
+        'form': form
+    })

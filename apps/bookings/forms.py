@@ -4,6 +4,13 @@ from .models import Booking, BookingService
 from apps.services.models import Service
 
 class BookingForm(forms.ModelForm):
+    booking_type = forms.ChoiceField(
+        choices=Booking.BOOKING_TYPE_CHOICES,
+        widget=forms.RadioSelect(attrs={
+            'class': 'form-check-input'
+        }),
+        initial='venue'
+    )
     event_date = forms.DateField(
         widget=forms.DateInput(attrs={
             'class': 'form-control datepicker',
@@ -52,7 +59,7 @@ class BookingForm(forms.ModelForm):
     
     class Meta:
         model = Booking
-        fields = ['event_date', 'start_time', 'end_time', 'guest_count', 'event_type', 'phone_number', 'special_requests']
+        fields = ['booking_type', 'event_date', 'start_time', 'end_time', 'guest_count', 'event_type', 'phone_number', 'special_requests']
     
     def clean(self):
         cleaned_data = super().clean()
