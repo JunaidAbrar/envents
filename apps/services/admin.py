@@ -4,7 +4,8 @@ from .models import (
     Service,
     ServicePhoto,
     ServiceReview,
-    FavoriteService
+    FavoriteService,
+    ServicePackage
 )
 
 class ServicePhotoInline(admin.TabularInline):
@@ -18,13 +19,17 @@ class ServiceReviewInline(admin.TabularInline):
     can_delete = False
     max_num = 0  # Don't show "add" button
 
+class ServicePackageInline(admin.TabularInline):
+    model = ServicePackage
+    extra = 1
+
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ('name', 'category', 'provider', 'base_price', 'price_type', 'status', 'is_featured')
     list_filter = ('status', 'is_featured', 'category', 'price_type')
     search_fields = ('name', 'description', 'provider__username', 'provider__business_name')
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [ServicePhotoInline, ServiceReviewInline]
+    inlines = [ServicePhotoInline, ServiceReviewInline, ServicePackageInline]
     list_editable = ('status', 'is_featured')
     raw_id_fields = ('provider',)
     actions = ['approve_services', 'reject_services', 'feature_services', 'unfeature_services']
@@ -70,3 +75,11 @@ class FavoriteServiceAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
     search_fields = ('user__username', 'service__name')
     raw_id_fields = ('user', 'service')
+
+@admin.register(ServicePackage)
+class ServicePackageAdmin(admin.ModelAdmin):
+    list_display = ('service', 'name', 'price', 'is_active', 'order')
+    list_filter = ('is_active', 'service__category')
+    search_fields = ('name', 'service__name', 'description')
+    list_editable = ('is_active', 'order')
+    raw_id_fields = ('service',)

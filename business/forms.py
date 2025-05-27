@@ -1,5 +1,5 @@
 from django import forms
-from apps.venues.models import Venue, VenueCategory, Amenity, VenuePhoto
+from apps.venues.models import Venue, VenueCategory, Amenity, VenuePhoto, VenueCateringPackage
 from apps.services.models import Service, ServiceCategory, ServicePhoto
 
 
@@ -109,6 +109,21 @@ class ServicePhotoForm(forms.ModelForm):
         }
 
 
+class VenueCateringPackageForm(forms.ModelForm):
+    """Form for adding catering packages to venues"""
+    
+    class Meta:
+        model = VenueCateringPackage
+        fields = ['name', 'description', 'price', 'price_type', 'is_active']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Package Name'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Describe what is included in this package'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': 0.01}),
+            'price_type': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'per person, per plate, flat rate, etc.'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+
 # Form for the image upload
 VenuePhotoFormSet = forms.modelformset_factory(
     VenuePhoto, 
@@ -124,4 +139,13 @@ ServicePhotoFormSet = forms.modelformset_factory(
     extra=3,  # Number of empty forms to display
     max_num=5,  # Maximum number of forms to display
     can_delete=True  # Allow deleting images
+)
+
+# Form for catering packages
+VenueCateringPackageFormSet = forms.modelformset_factory(
+    VenueCateringPackage,
+    form=VenueCateringPackageForm,
+    extra=2,  # Number of empty forms to display
+    max_num=5,  # Maximum number of forms to display
+    can_delete=True  # Allow deleting packages
 )

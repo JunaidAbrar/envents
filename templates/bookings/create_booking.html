@@ -142,6 +142,55 @@
                             </div>
                         </div>
 
+                        <!-- Venue Catering Section -->
+                        {% if venue.catering_packages.all %}
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-700 mb-4">Venue Catering</h2>
+                            <div class="mb-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="{{ form.uses_venue_catering.id_for_label }}" name="{{ form.uses_venue_catering.name }}" 
+                                           class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                           onchange="toggleCateringFields(this.checked)">
+                                    <label for="{{ form.uses_venue_catering.id_for_label }}" class="block text-sm font-medium text-gray-700 ml-2">
+                                        Use venue catering services
+                                    </label>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1 ml-6">
+                                    If you select venue catering, you won't be able to choose external catering services later.
+                                </p>
+                            </div>
+                            
+                            <div id="catering-fields" class="space-y-4 ml-6 hidden">
+                                <div>
+                                    <label for="{{ form.venue_catering_package.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Catering Package*
+                                    </label>
+                                    <select id="{{ form.venue_catering_package.id_for_label }}" name="{{ form.venue_catering_package.name }}" 
+                                          class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <option value="">Select a catering package</option>
+                                        {% for package in venue.catering_packages.all %}
+                                            {% if package.is_active %}
+                                            <option value="{{ package.id }}">{{ package.name }} - ৳{{ package.price }} ({{ package.price_type }})</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="{{ form.venue_catering_count.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Number of Servings*
+                                    </label>
+                                    <input type="number" id="{{ form.venue_catering_count.id_for_label }}" name="{{ form.venue_catering_count.name }}" 
+                                          class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                          min="1">
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        Typically this should match your guest count unless otherwise specified
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
                         <!-- Contact Information -->
                         <div>
                             <h2 class="text-xl font-semibold text-gray-700 mb-4">Contact Information</h2>
@@ -218,6 +267,25 @@
                         </div>
                     </div>
                     
+                    <!-- Show available catering packages if any -->
+                    {% if venue.catering_packages.all %}
+                    <div class="border-t border-gray-200 pt-4">
+                        <h3 class="font-medium text-gray-700 mb-2">Available Catering Packages</h3>
+                        <ul class="space-y-2">
+                            {% for package in venue.catering_packages.all %}
+                                {% if package.is_active %}
+                                <li class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    {{ package.name }} - ৳{{ package.price }} ({{ package.price_type }})
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
                     <div class="border-t border-gray-200 pt-4">
                         <h3 class="font-medium text-gray-700 mb-2">Available Amenities</h3>
                         <ul class="space-y-2">
@@ -247,4 +315,18 @@
         </div>
     </div>
 </div>
+
+<script>
+    function toggleCateringFields(checked) {
+        const cateringFields = document.getElementById('catering-fields');
+        if (checked) {
+            cateringFields.classList.remove('hidden');
+        } else {
+            cateringFields.classList.add('hidden');
+            // Reset the fields when unchecking
+            document.getElementById('{{ form.venue_catering_package.id_for_label }}').value = '';
+            document.getElementById('{{ form.venue_catering_count.id_for_label }}').value = '';
+        }
+    }
+</script>
 {% endblock %}

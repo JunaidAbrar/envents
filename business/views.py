@@ -7,9 +7,10 @@ from django.urls import reverse_lazy
 
 from .forms import (
     VenueSubmissionForm, ServiceSubmissionForm, 
-    VenuePhotoFormSet, ServicePhotoFormSet
+    VenuePhotoFormSet, ServicePhotoFormSet,
+    VenueCateringPackageFormSet
 )
-from apps.venues.models import Venue
+from apps.venues.models import Venue, VenueCateringPackage
 from apps.services.models import Service
 
 class BusinessDashboardView(LoginRequiredMixin, TemplateView):
@@ -25,26 +26,33 @@ class VenueSubmissionView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['venue_form'] = VenueSubmissionForm()
         context['photo_formset'] = VenuePhotoFormSet(queryset=Venue.objects.none())
+        context['catering_formset'] = VenueCateringPackageFormSet(
+            queryset=VenueCateringPackage.objects.none(),
+            prefix='catering'
+        )
         return context
     
     def post(self, request, *args, **kwargs):
         venue_form = VenueSubmissionForm(request.POST, owner=request.user)
         photo_formset = VenuePhotoFormSet(request.POST, request.FILES, queryset=Venue.objects.none())
+        catering_formset = VenueCateringPackageFormSet(
+            request.POST, queryset=VenueCateringPackage.objects.none(), prefix='catering'
+        )
         
-        if venue_form.is_valid() and photo_formset.is_valid():
-            return self._form_valid(venue_form, photo_formset)
+        if venue_form.is_valid() and photo_formset.is_valid() and catering_formset.is_valid():
+            return self._form_valid(venue_form, photo_formset, catering_formset)
         else:
-            return self._form_invalid(venue_form, photo_formset)
+            return self._form_invalid(venue_form, photo_formset, catering_formset)
     
-    def _form_valid(self, venue_form, photo_formset):
+    def _form_valid(self, venue_form, photo_formset, catering_formset):
         try:
             with transaction.atomic():
                 # Save the venue
                 venue = venue_form.save()
                 
                 # Process the photo formset
-                instances = photo_formset.save(commit=False)
-                for instance in instances:
+                photo_instances = photo_formset.save(commit=False)
+                for instance in photo_instances:
                     instance.venue = venue
                     instance.save()
                 
@@ -52,16 +60,27 @@ class VenueSubmissionView(LoginRequiredMixin, TemplateView):
                 for obj in photo_formset.deleted_objects:
                     obj.delete()
                 
+                # Process the catering package formset
+                catering_instances = catering_formset.save(commit=False)
+                for instance in catering_instances:
+                    instance.venue = venue
+                    instance.save()
+                
+                # Handle deleted catering packages
+                for obj in catering_formset.deleted_objects:
+                    obj.delete()
+                
                 messages.success(self.request, "Your venue has been submitted for review. We'll notify you once it's approved.")
                 return redirect('business:dashboard')
         except Exception as e:
             messages.error(self.request, f"An error occurred: {str(e)}")
-            return self._form_invalid(venue_form, photo_formset)
+            return self._form_invalid(venue_form, photo_formset, catering_formset)
     
-    def _form_invalid(self, venue_form, photo_formset):
+    def _form_invalid(self, venue_form, photo_formset, catering_formset):
         context = self.get_context_data()
         context['venue_form'] = venue_form
         context['photo_formset'] = photo_formset
+        context['catering_formset'] = catering_formset
         return render(self.request, self.template_name, context)
 
 

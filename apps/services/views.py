@@ -59,6 +59,9 @@ def service_detail(request, slug):
     """Display details of a specific service"""
     service = get_object_or_404(Service, slug=slug, status='approved')
     
+    # Get service packages
+    packages = service.packages.filter(is_active=True).order_by('order', 'name')
+    
     # Get related services (same category)
     related_services = Service.objects.filter(
         category=service.category, status='approved'
@@ -100,6 +103,7 @@ def service_detail(request, slug):
     
     return render(request, 'services/service_detail.html', {
         'service': service,
+        'packages': packages,
         'related_services': related_services,
         'is_favorite': is_favorite,
         'reviews': reviews,

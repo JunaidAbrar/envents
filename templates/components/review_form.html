@@ -1,0 +1,101 @@
+{% comment %}
+  Simplified Review Form Component - Rating input aligned left
+  
+  Expected context variables:
+  - form_action: URL to submit the form to
+  - object_type: 'venue' or 'service'
+{% endcomment %}
+
+<div class="bg-white rounded-lg p-6 mb-8">
+    <div class="mb-6">
+        <h3 class="font-bold text-xl mb-1 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+            </svg>
+            Share Your Experience
+        </h3>
+        <div class="text-gray-700 mt-1">How would you rate this {{ object_type }}?</div>
+    </div>
+    
+    <form method="post" action="{{ form_action }}" id="review-form" class="space-y-5">
+        {% csrf_token %}
+        
+        <div class="mb-6">
+            <div class="rating-container">
+                <div class="flex space-x-8 rating-dots">
+                    {% for i in "12345" %}
+                    <label class="cursor-pointer rating-dot-label">
+                        <input type="radio" name="rating" value="{{ forloop.counter }}" class="sr-only peer" required>
+                        <div class="w-5 h-5 rounded-full border-2 border-gray-300 peer-checked:bg-indigo-600 peer-checked:border-0 hover:border-indigo-300 transition-colors duration-200"></div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-2">
+            <label class="block font-medium mb-2" for="comment">Your Review</label>
+            <div class="relative">
+                <textarea id="comment" name="comment" rows="4" required
+                       class="w-full border border-gray-300 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+                       placeholder="Tell others about your experience with this {{ object_type }}..."></textarea>
+            </div>
+        </div>
+        
+        <div class="flex justify-between items-center pt-2">
+            <div id="character-count" class="text-xs text-gray-400">0/1000</div>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-8 rounded-lg shadow-sm transition duration-150">
+                Submit Review
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ratingInputs = document.querySelectorAll('.rating-dots input');
+    const reviewTextarea = document.getElementById('comment');
+    const characterCount = document.getElementById('character-count');
+    
+    // Handle character count
+    if (reviewTextarea && characterCount) {
+        reviewTextarea.addEventListener('input', function() {
+            const length = this.value.length;
+            characterCount.textContent = `${length}/1000`;
+            
+            if (length > 800) {
+                characterCount.classList.add('text-orange-500');
+                characterCount.classList.remove('text-gray-400', 'text-red-500');
+            } else if (length > 1000) {
+                characterCount.classList.add('text-red-500');
+                characterCount.classList.remove('text-gray-400', 'text-orange-500');
+            } else {
+                characterCount.classList.add('text-gray-400');
+                characterCount.classList.remove('text-orange-500', 'text-red-500');
+            }
+        });
+    }
+    
+    // Form validation
+    const form = document.getElementById('review-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const rating = document.querySelector('.rating-dots input:checked');
+            if (!rating) {
+                e.preventDefault();
+                alert('Please select a rating before submitting your review.');
+                return false;
+            }
+            
+            const comment = document.getElementById('comment');
+            if (comment.value.length < 10) {
+                e.preventDefault();
+                alert('Please provide more details in your review (minimum 10 characters).');
+                return false;
+            }
+            
+            return true;
+        });
+    }
+});
+</script>

@@ -122,3 +122,18 @@ class FavoriteService(models.Model):
     
     def __str__(self):
         return f"{self.user.username}'s favorite: {self.service.name}"
+
+class ServicePackage(models.Model):
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='packages')
+    name = models.CharField(max_length=100, help_text="Package name (e.g., 'Basic Package', 'Premium Package')")
+    description = models.TextField(blank=True, help_text="Details about what's included in this package")
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0, help_text="Display order in the selection")
+    
+    class Meta:
+        ordering = ['order', 'name']
+        unique_together = ('service', 'name')
+    
+    def __str__(self):
+        return f"{self.service.name}: {self.name}"

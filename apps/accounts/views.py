@@ -80,5 +80,5 @@ def favorites(request):
 
 @login_required
 def user_bookings(request):
-    bookings = Booking.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'accounts/user_bookings.html', {'bookings': bookings})
+    # Redirect to the main bookings page which has better UI
+    return redirect('bookings:booking_list')

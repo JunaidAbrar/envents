@@ -6,7 +6,8 @@ from .models import (
     VenuePhoto, 
     DisabledDate, 
     VenueReview,
-    FavoriteVenue
+    FavoriteVenue,
+    VenueCateringPackage
 )
 
 class VenuePhotoInline(admin.TabularInline):
@@ -24,13 +25,17 @@ class VenueReviewInline(admin.TabularInline):
     can_delete = False
     max_num = 0  # Don't show "add" button
 
+class VenueCateringPackageInline(admin.TabularInline):
+    model = VenueCateringPackage
+    extra = 1
+
 @admin.register(Venue)
 class VenueAdmin(admin.ModelAdmin):
     list_display = ('name', 'get_categories', 'city', 'capacity', 'price_per_hour', 'status', 'is_featured')
     list_filter = ('status', 'is_featured', 'city', 'category')
     search_fields = ('name', 'description', 'address', 'city')
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [VenuePhotoInline, DisabledDateInline, VenueReviewInline]
+    inlines = [VenuePhotoInline, DisabledDateInline, VenueReviewInline, VenueCateringPackageInline]
     filter_horizontal = ('amenities', 'category')
     list_editable = ('status', 'is_featured')
     actions = ['approve_venues', 'reject_venues', 'feature_venues', 'unfeature_venues']
@@ -89,3 +94,10 @@ class FavoriteVenueAdmin(admin.ModelAdmin):
     list_display = ('user', 'venue', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('user__username', 'venue__name')
+
+@admin.register(VenueCateringPackage)
+class VenueCateringPackageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'venue', 'price', 'price_type', 'is_active')
+    list_filter = ('is_active', 'venue')
+    search_fields = ('name', 'description', 'venue__name')
+    raw_id_fields = ('venue',)

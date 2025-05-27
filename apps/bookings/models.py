@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
-from apps.venues.models import Venue
-from apps.services.models import Service
+from apps.venues.models import Venue, VenueCateringPackage
+from apps.services.models import Service, ServicePackage
 
 class Booking(models.Model):
     STATUS_CHOICES = (
@@ -45,6 +45,18 @@ class Booking(models.Model):
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='unpaid')
     phone_number = models.CharField(max_length=20, blank=True, null=True)  # Made nullable for existing records
     
+    # Venue catering package fields
+    venue_catering_package = models.ForeignKey(
+        VenueCateringPackage,
+        on_delete=models.SET_NULL,
+        related_name='bookings',
+        null=True,
+        blank=True
+    )
+    venue_catering_count = models.PositiveIntegerField(default=0)
+    uses_venue_catering = models.BooleanField(default=False)
+    venue_catering_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
     # Pricing fields
     venue_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     services_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -69,9 +81,22 @@ class Booking(models.Model):
             return f"Service Booking #{self.id} - {self.event_type} on {self.event_date}"
     
     def save(self, *args, **kwargs):
+        # Ensure consistency between booking_type and venue
+        if self.booking_type == 'service_only':
+            self.venue = None
+            self.venue_cost = 0
+            self.venue_catering_package = None
+            self.uses_venue_catering = False
+            self.venue_catering_cost = 0
+        
+        # Calculate venue catering cost if applicable
+        if self.uses_venue_catering and self.venue_catering_package:
+            self.venue_catering_cost = self.venue_catering_package.price * self.venue_catering_count
+        else:
+            self.venue_catering_cost = 0
+        
         # Calculate total cost before saving
-        if not self.total_cost:
-            self.total_cost = self.venue_cost + self.services_cost
+        self.total_cost = (self.venue_cost or 0) + (self.services_cost or 0) + (self.venue_catering_cost or 0)
         super().save(*args, **kwargs)
 
 class BookingService(models.Model):
@@ -84,6 +109,13 @@ class BookingService(models.Model):
         Service,
         on_delete=models.CASCADE,
         related_name='booking_services'
+    )
+    package = models.ForeignKey(
+        ServicePackage,
+        on_delete=models.SET_NULL,
+        related_name='booking_services',
+        null=True,
+        blank=True
     )
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)

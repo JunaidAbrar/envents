@@ -27,7 +27,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
-                <span class="text-sm font-medium text-indigo-600 mt-2">Venue</span>
+                <span class="text-sm font-medium text-indigo-600 mt-2">
+                    {% if booking.booking_type == 'venue' %}Venue{% else %}Details{% endif %}
+                </span>
             </div>
             
             <div class="flex-1 h-1 bg-indigo-600 mx-2"></div>
@@ -61,6 +63,7 @@
                     <h2 class="text-xl font-semibold text-gray-800 mb-4">Booking Summary</h2>
                     
                     <!-- Venue Information -->
+                    {% if booking.venue %}
                     <div class="flex flex-col md:flex-row mb-6">
                         <div class="md:w-1/3 w-full h-48 md:h-auto overflow-hidden">
                             {% if booking.venue.main_photo %}
@@ -112,6 +115,44 @@
                             </p>
                         </div>
                     </div>
+                    {% else %}
+                    <!-- Service-Only Booking -->
+                    <div class="flex flex-col mb-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-800 mb-3">Service-Only Booking</h3>
+                            <p class="text-gray-600 mb-2 flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                {{ booking.event_date|date:"F d, Y" }}
+                            </p>
+                            <p class="text-gray-600 mb-2 flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ booking.start_time }} - {{ booking.end_time }}
+                            </p>
+                            <p class="text-gray-600 mb-2 flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                {{ booking.guest_count }} guests
+                            </p>
+                            <p class="text-gray-600 mb-2 flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                                </svg>
+                                {{ booking.event_type }}
+                            </p>
+                            <p class="text-gray-600 flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                                {{ booking.phone_number }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
                 
                 <!-- Selected Services -->
@@ -222,10 +263,19 @@
                     <h2 class="text-xl font-bold text-gray-800 mb-4">Price Summary</h2>
                     
                     <div class="space-y-3 mb-6">
+                        {% if booking.venue %}
                         <div class="flex justify-between">
                             <span class="text-gray-600">Venue Cost</span>
                             <span class="text-gray-900">৳{{ booking.venue_cost|floatformat:2 }}</span>
                         </div>
+                        
+                        {% if booking.uses_venue_catering and booking.venue_catering_package %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Venue Catering ({{ booking.venue_catering_package.name }})</span>
+                            <span class="text-gray-900">৳{{ booking.venue_catering_cost|floatformat:2 }}</span>
+                        </div>
+                        {% endif %}
+                        {% endif %}
                         
                         {% if booking_services %}
                         <!-- Individual Service Costs -->

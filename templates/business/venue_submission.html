@@ -306,6 +306,129 @@
                 </div>
             </div>
             
+            <!-- Catering Packages -->
+            <div class="border-b border-gray-200 py-6">
+                <div class="flex items-center mb-5">
+                    <div class="p-2 bg-orange-100 rounded-md mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19h6m-6 2h6m-6-6h6M9 5h6m-6 2h6m-6 2h6m6 6v-4m-4 4h4m-4 3h4" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800">Catering Packages</h2>
+                </div>
+                
+                <p class="text-sm text-gray-600 mb-4 ml-10 flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 flex-shrink-0 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Add catering packages that your venue can provide to clients. Creating catering packages will allow customers to choose your venue's in-house catering when booking.</span>
+                </p>
+                
+                {{ catering_formset.management_form }}
+                
+                <div class="space-y-4">
+                    {% for form in catering_formset %}
+                        <div class="border border-gray-200 rounded-lg overflow-hidden shadow-sm catering-form hover:shadow-md transition-shadow duration-200">
+                            <div class="border-b border-gray-200 bg-orange-50 px-4 py-3 flex justify-between items-center">
+                                <h3 class="text-sm font-medium text-gray-700">Catering Package #{{ forloop.counter }}</h3>
+                                {% if form.instance.pk %}
+                                    <div class="flex items-center text-sm">
+                                        {{ form.DELETE }}
+                                        <label for="{{ form.DELETE.id_for_label }}" class="ml-2 text-red-600 cursor-pointer flex items-center hover:text-red-800">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                            Delete
+                                        </label>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            {{ form.id }}
+                            <div class="p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                            Package Name*
+                                        </label>
+                                        {{ form.name }}
+                                        {% if form.name.errors %}
+                                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                                {{ form.name.errors.0 }}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label for="{{ form.price.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                                Price*
+                                            </label>
+                                            <div class="relative">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <span class="text-gray-500 sm:text-sm">৳</span>
+                                                </div>
+                                                {{ form.price }}
+                                            </div>
+                                            {% if form.price.errors %}
+                                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                                    {{ form.price.errors.0 }}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="{{ form.price_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                                Price Type*
+                                            </label>
+                                            {{ form.price_type }}
+                                            {% if form.price_type.errors %}
+                                                <p class="mt-1 text-sm text-red-600 flex items-center">
+                                                    {{ form.price_type.errors.0 }}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Description
+                                    </label>
+                                    {{ form.description }}
+                                    <p class="mt-1 text-xs text-gray-500">
+                                        Provide details of what's included in this package, special dietary options, etc.
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded-md border border-gray-200">
+                                    <div class="flex items-center">
+                                        {{ form.is_active }}
+                                        <label for="{{ form.is_active.id_for_label }}" class="ml-2 block text-sm text-gray-700 cursor-pointer">
+                                            <span class="font-medium">Available for booking</span> 
+                                            <span class="text-xs text-gray-500">(Uncheck to hide this package from customers)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Add another catering package button -->
+                <div class="mt-4">
+                    <button type="button" id="add-catering-package" class="inline-flex items-center px-3 py-2 border border-orange-300 shadow-sm text-sm leading-4 font-medium rounded-md text-orange-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Add Another Package
+                    </button>
+                </div>
+            </div>
+            
             <!-- Photos -->
             <div class="py-6">
                 <div class="flex items-center mb-5">
@@ -409,13 +532,45 @@
             });
         });
         
+        // Setup for catering package formset
+        const totalFormsInput = document.querySelector('#id_catering-TOTAL_FORMS');
+        const cateringFormContainer = document.querySelector('.space-y-4');
+        
+        document.querySelector('#add-catering-package').addEventListener('click', function() {
+            const formCount = parseInt(totalFormsInput.value);
+            if (formCount < {{ catering_formset.max_num }}) {
+                // Clone the first form
+                const formTemplate = cateringFormContainer.querySelector('.catering-form').cloneNode(true);
+                
+                // Update form index
+                formTemplate.innerHTML = formTemplate.innerHTML.replace(/-0-/g, `-${formCount}-`);
+                formTemplate.innerHTML = formTemplate.innerHTML.replace(/Package #1/g, `Package #${formCount + 1}`);
+                
+                // Clear input values
+                formTemplate.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Add the new form to the container
+                cateringFormContainer.appendChild(formTemplate);
+                
+                // Update the total forms count
+                totalFormsInput.value = formCount + 1;
+            } else {
+                alert('You can add a maximum of ' + {{ catering_formset.max_num }} + ' catering packages.');
+            }
+        });
+        
         // Add classes to form inputs for consistent styling
         const formControls = document.querySelectorAll('input[type="text"], input[type="number"], textarea, select');
         formControls.forEach(function(control) {
             if (!control.classList.contains('form-control')) {
                 control.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-200', 'focus:ring-opacity-50');
                 
-                if (control.type === 'number' && control.id === '{{ venue_form.price_per_hour.id_for_label }}') {
+                if (control.type === 'number' && (
+                    control.id === '{{ venue_form.price_per_hour.id_for_label }}' ||
+                    control.id.includes('price') && !control.id.includes('price_type')
+                )) {
                     control.classList.add('pl-7');
                 }
             }

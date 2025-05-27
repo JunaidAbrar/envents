@@ -53,11 +53,20 @@
             <div class="md:flex">
                 <!-- Venue Image -->
                 <div class="md:w-1/4 h-48 md:h-auto overflow-hidden">
-                    {% if booking.venue.main_photo %}
-                    <img src="{{ booking.venue.main_photo.image.url }}" alt="{{ booking.venue.name }}" class="w-full h-full object-cover">
+                    {% if booking.venue %}
+                        {% if booking.venue.main_photo %}
+                            <img src="{{ booking.venue.main_photo.image.url }}" alt="{{ booking.venue.name }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
+                                alt="{{ booking.venue.name }}" class="w-full h-full object-cover">
+                        {% endif %}
                     {% else %}
-                    <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
-                         alt="{{ booking.venue.name }}" class="w-full h-full object-cover">
+                        <!-- Service-only booking image -->
+                        <div class="w-full h-full bg-indigo-100 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </div>
                     {% endif %}
                 </div>
                 
@@ -65,7 +74,11 @@
                 <div class="md:w-3/4 p-6">
                     <!-- Status Badge -->
                     <div class="flex justify-between items-start mb-2">
-                        <h2 class="text-2xl font-bold text-gray-800">{{ booking.venue.name }}</h2>
+                        {% if booking.venue %}
+                            <h2 class="text-2xl font-bold text-gray-800">{{ booking.venue.name }}</h2>
+                        {% else %}
+                            <h2 class="text-2xl font-bold text-gray-800">Service-Only Booking</h2>
+                        {% endif %}
                         <span class="
                             {% if booking.status == 'confirmed' %}bg-green-100 text-green-800
                             {% elif booking.status == 'pending' %}bg-yellow-100 text-yellow-800
