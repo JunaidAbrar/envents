@@ -14,8 +14,10 @@ from .forms import BookingForm, BookingServiceForm
 @login_required
 def booking_list(request):
     """Display all bookings for the current user"""
-    # Get all bookings for the current user
-    bookings = Booking.objects.filter(user=request.user)
+    # Get all bookings for the current user with related objects in a single query
+    bookings = Booking.objects.filter(user=request.user).select_related(
+        'venue', 'venue_catering_package'
+    ).prefetch_related('booking_services', 'booking_services__service')
     
     # Filter by status if specified
     status = request.GET.get('status')
@@ -45,8 +47,18 @@ def booking_list(request):
 @login_required
 def booking_detail(request, booking_id):
     """Display details for a specific booking"""
-    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
-    booking_services = booking.booking_services.all()
+    # Use select_related and prefetch_related to fetch related data in single queries
+    booking = get_object_or_404(
+        Booking.objects.select_related(
+            'venue', 'user', 'venue_catering_package'
+        ).prefetch_related(
+            'booking_services', 
+            'booking_services__service',
+            'booking_services__package'
+        ), 
+        id=booking_id, 
+        user=request.user
+    )
     
     # Calculate time remaining until event
     now = timezone.now().date()
@@ -54,7 +66,7 @@ def booking_detail(request, booking_id):
     
     return render(request, 'bookings/booking_detail.html', {
         'booking': booking,
-        'booking_services': booking_services,
+        'booking_services': booking.booking_services.all(),
         'days_remaining': days_remaining
     })
 
@@ -71,6 +83,7 @@ def create_booking(request, venue_slug):
                 booking.user = request.user
                 booking.venue = venue
                 booking.booking_type = 'venue'  # Explicitly set booking type for venue bookings
+                booking.status = 'quotation'  # Set initial status to quotation
                 hours_diff = booking.end_time.hour - booking.start_time.hour
                 minutes_diff = booking.end_time.minute - booking.start_time.minute
                 time_fraction = Decimal(hours_diff + (minutes_diff / 60))
@@ -90,7 +103,7 @@ def create_booking(request, venue_slug):
                 booking.total_cost = booking.venue_cost + booking.services_cost + booking.venue_catering_cost
                 booking.save()
                 
-                messages.success(request, f"Booking created successfully! You can now add services to your booking.")
+                messages.success(request, f"Your booking request has been submitted and we'll prepare a quote for you. You can add services while we review your request.")
                 return redirect('bookings:add_services', booking_id=booking.id)
     else:
         form = BookingForm(initial={'booking_type': 'venue'}, venue=venue)
@@ -103,27 +116,40 @@ def create_booking(request, venue_slug):
 @login_required
 def add_services(request, booking_id):
     """Add services to an existing booking"""
-    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    booking = get_object_or_404(
+        Booking.objects.select_related('venue', 'venue_catering_package'), 
+        id=booking_id, 
+        user=request.user
+    )
     
-    # Only allow adding services to pending bookings
-    if booking.status != 'pending':
-        messages.error(request, "You can only add services to pending bookings.")
+    # Only allow adding services to pending or quotation bookings
+    if booking.status not in ['pending', 'quotation']:
+        messages.error(request, "You can only add services to bookings that are in quotation or pending state.")
         return redirect('bookings:booking_detail', booking_id=booking.id)
     
     # Check if venue catering is being used
     exclude_catering = booking.uses_venue_catering
     
-    # Get all available services
-    services = Service.objects.filter(status='approved')
+    # Get all available services with prefetch_related for packages to avoid N+1 queries
+    services = Service.objects.filter(status='approved').prefetch_related('packages').select_related('category')
     
     if request.method == 'POST':
         service_id = request.POST.get('service_id')
         package_id = request.POST.get('package_id')
-        quantity = int(request.POST.get('quantity', 1))
+        
+        # Safely handle quantity as a text input
+        try:
+            quantity = int(request.POST.get('quantity', 1))
+            # Ensure quantity is at least 1
+            if quantity < 1:
+                quantity = 1
+        except (ValueError, TypeError):
+            quantity = 1
+            
         special_requirements = request.POST.get('special_requirements', '')
         
         if service_id:
-            service = get_object_or_404(Service, id=service_id)
+            service = get_object_or_404(Service.objects.prefetch_related('packages'), id=service_id)
             
             # Prevent adding catering services if venue catering is selected
             if exclude_catering:
@@ -170,8 +196,8 @@ def add_services(request, booking_id):
                 
             return redirect('bookings:add_services', booking_id=booking.id)
             
-    # Get current booking services
-    booking_services = booking.booking_services.all()
+    # Get current booking services with related data
+    booking_services = booking.booking_services.select_related('service', 'package').all()
     
     # If venue catering is selected, create a form that excludes catering services
     form = BookingServiceForm(exclude_catering=exclude_catering)
@@ -187,18 +213,31 @@ def add_services(request, booking_id):
 @login_required
 def confirm_booking(request, booking_id):
     """Confirm a booking request"""
-    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    booking = get_object_or_404(
+        Booking.objects.select_related(
+            'venue', 'venue_catering_package', 'user'
+        ).prefetch_related(
+            'booking_services',
+            'booking_services__service'
+        ),
+        id=booking_id, 
+        user=request.user
+    )
     
-    if booking.status != 'pending':
-        messages.error(request, "This booking has already been processed.")
+    # Allow confirmation for pending or quotation statuses
+    if booking.status not in ['pending', 'quotation']:
+        messages.error(request, "This booking has already been processed or cannot be confirmed.")
         return redirect('bookings:booking_detail', booking_id=booking.id)
     
     if request.method == 'POST':
+        # If it's a quotation, move it to pending status
+        if booking.status == 'quotation':
+            booking.status = 'pending'
+            
         # The booking stays in 'pending' status for admin approval
-        # We just record that the user has confirmed their request
         booking.save()
         
-        messages.success(request, "Your booking request has been submitted successfully! The venue owner will review your request shortly.")
+        messages.success(request, "Your booking request has been submitted successfully! Our team will review your request shortly.")
         return redirect('bookings:booking_detail', booking_id=booking.id)
     
     return render(request, 'bookings/confirm_booking.html', {
@@ -207,8 +246,32 @@ def confirm_booking(request, booking_id):
     })
 
 @login_required
+def accept_quotation(request, booking_id):
+    """Handle user acceptance of a quotation"""
+    booking = get_object_or_404(
+        Booking.objects.select_related('user'), 
+        id=booking_id, 
+        user=request.user,
+        status='quotation'
+    )
+    
+    if request.method == 'POST':
+        # Update the booking status to pending (waiting for admin confirmation)
+        booking.status = 'pending'
+        booking.save()
+        
+        messages.success(request, "You have accepted the quotation. Your booking is now pending confirmation.")
+        return redirect('bookings:booking_detail', booking_id=booking.id)
+    
+    return redirect('bookings:booking_detail', booking_id=booking.id)
+
+@login_required
 def create_service_booking(request):
     """Create a new service-only booking (without requiring a venue)"""
+    # Get service_id and package_id from query parameters
+    service_id = request.GET.get('service_id')
+    package_id = request.GET.get('package_id')
+    
     if request.method == 'POST':
         form = BookingForm(request.POST)
         if form.is_valid():
@@ -217,16 +280,67 @@ def create_service_booking(request):
                 booking.user = request.user
                 booking.booking_type = 'service_only'
                 booking.venue = None  # No venue for service-only bookings
+                booking.status = 'quotation'  # Set initial status to quotation
                 booking.venue_cost = 0  # No venue cost
                 booking.services_cost = 0  # Initialize services cost
                 booking.total_cost = 0  # Will be updated when services are added
                 booking.save()
                 
-                messages.success(request, "Service booking created successfully! Please add services to your booking.")
+                # If a service was selected before booking creation, automatically add it
+                if service_id:
+                    try:
+                        service = Service.objects.prefetch_related('packages').get(id=service_id, status='approved')
+                        
+                        # Determine price based on package or base price
+                        package = None
+                        price = service.base_price
+                        
+                        if package_id:
+                            try:
+                                package = service.packages.get(id=package_id, is_active=True)
+                                price = package.price
+                            except:
+                                # If package doesn't exist, use default price
+                                pass
+                        
+                        # Create booking service with default quantity=1
+                        booking_service = BookingService.objects.create(
+                            booking=booking,
+                            service=service,
+                            package=package,
+                            quantity=1,
+                            price=price,
+                            special_requirements=''
+                        )
+                        
+                        # Update booking costs
+                        booking.services_cost = booking_service.price * booking_service.quantity
+                        booking.total_cost = booking.services_cost
+                        booking.save()
+                        # Indicate that a service was automatically added in the redirect
+                        return redirect(f'/bookings/{booking.id}/add-services/?auto_added=1')
+                    except Service.DoesNotExist:
+                        # If service doesn't exist or isn't approved, just continue without adding it
+                        pass
+                
+                messages.success(request, "Your service booking request has been submitted and we'll prepare a quote for you. You can now select the services you need.")
                 return redirect('bookings:add_services', booking_id=booking.id)
     else:
         form = BookingForm(initial={'booking_type': 'service_only'})
     
-    return render(request, 'bookings/create_service_booking.html', {
-        'form': form
-    })
+    # Store service information in context for the template
+    context = {
+        'form': form,
+        'service_id': service_id,
+        'package_id': package_id
+    }
+    
+    # If service_id exists, add service details to context
+    if service_id:
+        try:
+            service = Service.objects.get(id=service_id)
+            context['selected_service'] = service
+        except Service.DoesNotExist:
+            pass
+    
+    return render(request, 'bookings/create_service_booking.html', context)

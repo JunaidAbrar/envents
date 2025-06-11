@@ -5,3 +5,6 @@ python manage.py runserver
 python manage.py tailwind start
 
 admin name pass: superuser
+APP_PASSWORD for envents.operation@gmail.com: hwss ycrz zmqv drpj
+
+Aws console pass: @envents25leads

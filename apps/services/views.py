@@ -8,7 +8,8 @@ from .forms import ServiceReviewForm
 
 def service_list(request):
     """Display list of services with filtering options"""
-    services = Service.objects.filter(status='approved')
+    # Use prefetch_related to avoid N+1 queries
+    services = Service.objects.filter(status='approved').select_related('category', 'provider').prefetch_related('photos')
     categories = ServiceCategory.objects.all()
     
     # Filter by category
@@ -57,14 +58,23 @@ def service_list(request):
 
 def service_detail(request, slug):
     """Display details of a specific service"""
-    service = get_object_or_404(Service, slug=slug, status='approved')
+    # Use select_related and prefetch_related to optimize queries
+    service = get_object_or_404(
+        Service.objects.select_related('category', 'provider').prefetch_related(
+            'photos', 'packages'
+        ),
+        slug=slug, 
+        status='approved'
+    )
     
-    # Get service packages
+    # Get service packages with efficient querying
     packages = service.packages.filter(is_active=True).order_by('order', 'name')
     
-    # Get related services (same category)
+    # Get related services with optimization
     related_services = Service.objects.filter(
         category=service.category, status='approved'
+    ).select_related('category', 'provider').prefetch_related(
+        'photos'
     ).exclude(id=service.id)[:3]
     
     # Check if favorited
@@ -74,8 +84,8 @@ def service_detail(request, slug):
             user=request.user, service=service
         ).exists()
     
-    # Get reviews
-    reviews = service.reviews.all()
+    # Get reviews with user information in a single query
+    reviews = service.reviews.select_related('user').all()
     avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
     
     # Review form
@@ -114,7 +124,11 @@ def service_detail(request, slug):
 def service_list_by_category(request, category_slug):
     """Display services filtered by category"""
     category = get_object_or_404(ServiceCategory, slug=category_slug)
-    services = Service.objects.filter(category=category, status='approved')
+    
+    # Add select_related and prefetch_related for optimization
+    services = Service.objects.filter(
+        category=category, status='approved'
+    ).select_related('category', 'provider').prefetch_related('photos')
     
     return render(request, 'services/service_list.html', {
         'services': services,
@@ -128,10 +142,11 @@ def service_search(request):
     services = []
     
     if query:
+        # Add select_related and prefetch_related for optimization
         services = Service.objects.filter(
             (Q(name__icontains=query) | Q(description__icontains=query)),
             status='approved'
-        )
+        ).select_related('category', 'provider').prefetch_related('photos')
     
     return render(request, 'services/search_results.html', {
         'services': services,

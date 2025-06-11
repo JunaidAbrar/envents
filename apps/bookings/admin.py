@@ -9,7 +9,7 @@ class BookingServiceInline(admin.TabularInline):
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'get_booking_link', 'user', 'venue', 'event_date', 'phone_number', 'status', 'payment_status', 'total_cost')
+    list_display = ('id', 'get_booking_link', 'user', 'venue', 'event_date', 'phone_number', 'status', 'payment_status', 'total_cost', 'quoted_price')
     list_filter = ('status', 'payment_status', 'event_date')
     search_fields = ('venue__name', 'user__username', 'user__email', 'event_type')
     date_hierarchy = 'event_date'
@@ -29,11 +29,15 @@ class BookingAdmin(admin.ModelAdmin):
         ('Payment Information', {
             'fields': ('payment_status', 'venue_cost', 'services_cost', 'total_cost')
         }),
+        ('Quotation Information', {
+            'fields': ('quoted_price', 'quoted_message'),
+        }),
         ('Additional Information', {
             'fields': ('special_requests', 'created_at', 'updated_at')
         }),
     )
     actions = ['confirm_bookings', 'cancel_bookings', 'mark_as_completed', 
+              'set_quoted_price', 'mark_as_pending',
               'mark_as_unpaid', 'mark_as_partially_paid', 'mark_as_fully_paid', 'mark_as_refunded']
     
     def get_booking_link(self, obj):
@@ -43,7 +47,45 @@ class BookingAdmin(admin.ModelAdmin):
     
     # Booking status actions
     def confirm_bookings(self, request, queryset):
+        # When confirming bookings, send confirmation email
+        from django.core.mail import send_mail
+        from django.conf import settings
+        from django.template.loader import render_to_string
+        from django.utils.html import strip_tags
+        from django.urls import reverse
+        from django.contrib.sites.models import Site
+        
+        for booking in queryset:
+            # Send confirmation email
+            try:
+                subject = f"Your Booking #{booking.id} is Confirmed"
+                
+                # Get the absolute URL to the booking detail
+                current_site = Site.objects.get_current()
+                booking_url = f"https://{current_site.domain}{reverse('bookings:booking_detail', args=[booking.id])}"
+                
+                # Render HTML email
+                html_message = render_to_string('emails/booking_confirmation.html', {
+                    'booking': booking,
+                    'booking_url': booking_url,
+                })
+                
+                # Plain text version for email clients that don't support HTML
+                plain_message = strip_tags(html_message)
+                
+                send_mail(
+                    subject,
+                    plain_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [booking.user.email],
+                    html_message=html_message,
+                    fail_silently=False,
+                )
+            except Exception as e:
+                self.message_user(request, f"Error sending email for booking #{booking.id}: {str(e)}", level='error')
+        
         queryset.update(status='confirmed')
+        self.message_user(request, f"{queryset.count()} booking(s) marked as confirmed and notification emails sent.")
     confirm_bookings.short_description = "Mark selected bookings as confirmed"
     
     def cancel_bookings(self, request, queryset):
@@ -53,6 +95,48 @@ class BookingAdmin(admin.ModelAdmin):
     def mark_as_completed(self, request, queryset):
         queryset.update(status='completed')
     mark_as_completed.short_description = "Mark selected bookings as completed"
+    
+    def mark_as_pending(self, request, queryset):
+        queryset.update(status='pending')
+    mark_as_pending.short_description = "Mark selected bookings as pending (quotation accepted)"
+    
+    def set_quoted_price(self, request, queryset):
+        from django.http import HttpResponseRedirect
+        from django.contrib.admin import helpers
+        from django import forms
+        from django.shortcuts import render
+        
+        class QuotationForm(forms.Form):
+            _selected_action = forms.CharField(widget=forms.MultipleHiddenInput)
+            quoted_price = forms.DecimalField(max_digits=10, decimal_places=2, required=True)
+            quoted_message = forms.CharField(widget=forms.Textarea, required=False, 
+                               help_text="Additional message to include with the price quote")
+        
+        if 'apply' in request.POST:
+            form = QuotationForm(request.POST)
+            
+            if form.is_valid():
+                quoted_price = form.cleaned_data['quoted_price']
+                quoted_message = form.cleaned_data['quoted_message']
+                
+                count = 0
+                for booking in queryset:
+                    booking.quoted_price = quoted_price
+                    booking.quoted_message = quoted_message
+                    booking.status = 'quotation'  # Ensure status is quotation
+                    booking.save()
+                    count += 1
+                
+                self.message_user(request, f"Successfully set quoted price for {count} bookings.")
+                return HttpResponseRedirect(request.get_full_path())
+        
+        form = QuotationForm(initial={'_selected_action': request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
+        return render(request, 'admin/set_quoted_price.html', {
+            'bookings': queryset,
+            'quotation_form': form,
+            'title': 'Set quoted price',
+        })
+    set_quoted_price.short_description = "Set quoted price for selected bookings"
     
     # Payment status actions
     def mark_as_unpaid(self, request, queryset):

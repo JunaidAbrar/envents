@@ -54,6 +54,24 @@
         </div>
     </div>
     
+    <!-- Auto-added Service Notification -->
+    {% if booking_services and request.GET.auto_added == '1' %}
+    <div class="bg-green-50 border border-green-200 text-green-700 px-6 py-4 rounded-lg mb-6" role="alert">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium">
+                    Your selected service has been automatically added to your booking. You can adjust quantity and requirements or add more services below.
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
     <!-- Venue Catering Notice -->
     {% if exclude_catering %}
     <div class="bg-blue-50 border border-blue-200 text-blue-700 px-6 py-4 rounded-lg mb-6" role="alert">
@@ -160,11 +178,7 @@
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                             <div>
                                                 <label for="quantity-{{ service.id }}" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                                                <select id="quantity-{{ service.id }}" name="quantity" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                                    {% for i in "12345" %}
-                                                    <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
-                                                    {% endfor %}
-                                                </select>
+                                                <input type="number" id="quantity-{{ service.id }}" name="quantity" min="1" value="1" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                             </div>
                                             <div>
                                                 <label for="special_requirements-{{ service.id }}" class="block text-sm font-medium text-gray-700 mb-1">Special Requirements</label>
@@ -231,11 +245,7 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                         <div>
                                             <label for="quantity-catering" class="block text-sm font-medium text-gray-700 mb-1">Quantity (Per Person)</label>
-                                            <select id="quantity-catering" name="quantity" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                                {% for i in "12345678910" %}
-                                                <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
-                                                {% endfor %}
-                                            </select>
+                                            <input type="number" id="quantity-catering" name="quantity" min="1" value="10" placeholder="Number of guests" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                         </div>
                                         <div>
                                             <label for="special_requirements-catering" class="block text-sm font-medium text-gray-700 mb-1">Special Requirements</label>
@@ -291,10 +301,7 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                         <div>
                                             <label for="quantity-photography" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                                            <select id="quantity-photography" name="quantity" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                                <option value="1">1 (4 hours)</option>
-                                                <option value="2">2 (8 hours)</option>
-                                            </select>
+                                            <input type="number" id="quantity-photography" name="quantity" min="1" value="1" placeholder="Number of slots (4 hours each)" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                         </div>
                                         <div>
                                             <label for="special_requirements-photography" class="block text-sm font-medium text-gray-700 mb-1">Special Requirements</label>
@@ -350,10 +357,7 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                         <div>
                                             <label for="quantity-decoration" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                                            <select id="quantity-decoration" name="quantity" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                                <option value="1">1 (Standard Package)</option>
-                                                <option value="2">2 (Premium Package)</option>
-                                            </select>
+                                            <input type="number" id="quantity-decoration" name="quantity" min="1" value="1" placeholder="Number of packages" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                         </div>
                                         <div>
                                             <label for="special_requirements-decoration" class="block text-sm font-medium text-gray-700 mb-1">Special Requirements</label>

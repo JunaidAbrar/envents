@@ -7,8 +7,18 @@ def home(request):
     """
     Home page view that passes context data for the venue search form
     """
-    # Get all distinct cities from approved venues
-    cities = Venue.objects.filter(status='approved').values_list('city', flat=True).distinct()
+    # Get all distinct cities from approved venues - case insensitive
+    cities_raw = Venue.objects.filter(status='approved').values_list('city', flat=True)
+    # Create a case-insensitive set of unique cities
+    cities_set = set(city.lower() for city in cities_raw if city)
+    # Map each lowercase city to its standard display form (first occurrence)
+    cities_map = {}
+    for city in cities_raw:
+        if city and city.lower() not in cities_map:
+            cities_map[city.lower()] = city
+    # Final list of unique cities with proper casing
+    cities = [cities_map[city_lower] for city_lower in cities_set]
+    cities.sort()  # Sort alphabetically for better UX
     
     # Get all venue categories for "Program Type" dropdown
     categories = VenueCategory.objects.all()

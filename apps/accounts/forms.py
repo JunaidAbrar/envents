@@ -7,29 +7,29 @@ class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Email address'
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition duration-200',
+            'placeholder': 'Your email address'
         })
     )
     first_name = forms.CharField(
         required=True,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'First name'
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition duration-200',
+            'placeholder': 'Your first name'
         })
     )
     last_name = forms.CharField(
         required=True,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Last name'
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition duration-200',
+            'placeholder': 'Your last name'
         })
     )
     phone_number = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Phone number'
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition duration-200',
+            'placeholder': 'Your phone number'
         })
     )
     
@@ -38,16 +38,22 @@ class UserRegistrationForm(UserCreationForm):
         fields = ['username', 'email', 'first_name', 'last_name', 'phone_number', 'password1', 'password2']
         widgets = {
             'username': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Username'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition duration-200',
+                'placeholder': 'Choose a username'
             }),
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Customize password field widgets
-        self.fields['password1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Password'})
-        self.fields['password2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Confirm password'})
+        self.fields['password1'].widget.attrs.update({
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition duration-200', 
+            'placeholder': 'Create a password'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition duration-200', 
+            'placeholder': 'Confirm your password'
+        })
         
     def save(self, commit=True):
         user = super().save(commit=False)

@@ -5,6 +5,7 @@ from apps.services.models import Service, ServicePackage
 
 class Booking(models.Model):
     STATUS_CHOICES = (
+        ('quotation', 'Quotation'),
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
         ('cancelled', 'Cancelled'),
@@ -41,9 +42,13 @@ class Booking(models.Model):
     end_time = models.TimeField()
     guest_count = models.PositiveIntegerField()
     event_type = models.CharField(max_length=100)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='quotation')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='unpaid')
     phone_number = models.CharField(max_length=20, blank=True, null=True)  # Made nullable for existing records
+    
+    # Quotation fields
+    quoted_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    quoted_message = models.TextField(blank=True, null=True, help_text="Admin message for the quotation")
     
     # Venue catering package fields
     venue_catering_package = models.ForeignKey(

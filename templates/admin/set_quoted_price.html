@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+<div>
+    <h2>{{ title }}</h2>
+    <p>Set quoted price for the following bookings:</p>
+    <ul>
+        {% for booking in bookings %}
+        <li>Booking #{{ booking.id }} - 
+            {% if booking.venue %}{{ booking.venue.name }}{% else %}Service Booking{% endif %} 
+            on {{ booking.event_date }} by {{ booking.user.username }}</li>
+        {% endfor %}
+    </ul>
+    
+    <form action="" method="post">{% csrf_token %}
+        {{ quotation_form }}
+        <div class="submit-row">
+            <input type="hidden" name="action" value="set_quoted_price" />
+            <input type="submit" name="apply" value="Set Quoted Price" />
+            <a href="{% url 'admin:bookings_booking_changelist' %}" class="button cancel-link">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

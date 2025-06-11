@@ -7,13 +7,26 @@ from .models import Venue, VenueCategory, VenueReview, FavoriteVenue, Amenity
 from .forms import VenueReviewForm
 
 def venue_list(request):
-    venues_queryset = Venue.objects.filter(status='approved')
+    # Use select_related and prefetch_related to avoid N+1 queries
+    venues_queryset = Venue.objects.filter(status='approved').prefetch_related(
+        'category', 'amenities', 'photos'
+    )
     all_categories = VenueCategory.objects.all()
     all_amenities = Amenity.objects.all()
     
-    # Get all distinct cities from venues
-    cities = Venue.objects.filter(status='approved').values_list('city', flat=True).distinct()
-    
+    # Get all distinct cities from venues - case insensitive
+    cities_raw = Venue.objects.filter(status='approved').values_list('city', flat=True)
+    # Create a case-insensitive set of unique cities
+    cities_set = set(city.lower() for city in cities_raw if city)
+    # Map each lowercase city to its standard display form (first occurrence)
+    cities_map = {}
+    for city in cities_raw:
+        if city and city.lower() not in cities_map:
+            cities_map[city.lower()] = city
+    # Final list of unique cities with proper casing
+    cities = [cities_map[city_lower] for city_lower in cities_set]
+    cities.sort()  # Sort alphabetically for better UX
+
     # Filter by categories
     categories = request.GET.getlist('categories')
     if categories:
@@ -43,7 +56,9 @@ def venue_list(request):
     # Filter by amenities
     amenities = request.GET.getlist('amenities')
     if amenities:
-        venues_queryset = venues_queryset.filter(amenities__id__in=amenities).distinct()
+        # Convert string IDs to integers before filtering
+        amenities_int = [int(a) for a in amenities]
+        venues_queryset = venues_queryset.filter(amenities__id__in=amenities_int).distinct()
     
     # For home page search compatibility
     # Redirect from the home search with location, guests and type parameters
@@ -54,13 +69,22 @@ def venue_list(request):
     
     guests = request.GET.get('guests')
     if guests:
-        venues_queryset = venues_queryset.filter(capacity__gte=guests)
-        min_capacity = guests  # Set min_capacity for template rendering
+        if guests == '1000+':  # Handle the 1000+ special case
+            venues_queryset = venues_queryset.filter(capacity__gte=1000)
+            min_capacity = '1000+'  # Set min_capacity for template rendering
+        else:
+            try:
+                guests_int = int(guests)
+                venues_queryset = venues_queryset.filter(capacity__gte=guests_int)
+                min_capacity = guests  # Set min_capacity for template rendering
+            except ValueError:
+                # If the value can't be converted to an integer, skip this filter
+                pass
     
     event_type = request.GET.get('type')
-    # Note: If you want to filter by event type, you would need to implement
-    # that logic here. This might require adding an event_type field to the 
-    # Venue model or relating it to categories.
+    # Filter venues by category if type is provided
+    if event_type:
+        venues_queryset = venues_queryset.filter(category__id=event_type).distinct()
     
     # Sorting
     sort = request.GET.get('sort', 'name')
@@ -75,7 +99,7 @@ def venue_list(request):
     else:
         venues_queryset = venues_queryset.order_by('name')
     
-    # Get user favorites if user is authenticated
+    # Get user favorites efficiently in one query
     user_favorites = []
     if request.user.is_authenticated:
         user_favorites = FavoriteVenue.objects.filter(user=request.user).values_list('venue', flat=True)
@@ -100,7 +124,8 @@ def venue_list(request):
         'city': city,
         'sort': sort,
         'cities': cities,
-        'amenities': all_amenities,  # Provide actual amenities list
+        'amenities': all_amenities,
+        'selected_amenities': amenities,  # Pass the original string IDs to maintain form state
         'user_favorites': user_favorites,
         'is_paginated': True if paginator.num_pages > 1 else False,
         'page_obj': venues,
@@ -108,14 +133,23 @@ def venue_list(request):
     })
 
 def venue_detail(request, slug):
-    venue = get_object_or_404(Venue, slug=slug, status='approved')
+    # Use select_related and prefetch_related to avoid N+1 queries
+    venue = get_object_or_404(
+        Venue.objects.prefetch_related(
+            'category', 
+            'amenities', 
+            'photos', 
+            'catering_packages'
+        ), 
+        slug=slug, 
+        status='approved'
+    )
     
-    # Get related venues (same category)
-    # For many-to-many, get all venue's categories and find venues in any of those categories
+    # Get related venues with prefetch_related to optimize performance
     venue_categories = venue.category.all()
     related_venues = Venue.objects.filter(
         category__in=venue_categories, status='approved'
-    ).exclude(id=venue.id).distinct()[:3]
+    ).prefetch_related('photos').exclude(id=venue.id).distinct()[:3]
     
     # Check if favorited
     is_favorite = False
@@ -124,8 +158,8 @@ def venue_detail(request, slug):
             user=request.user, venue=venue
         ).exists()
     
-    # Get reviews
-    reviews = venue.reviews.all()
+    # Get reviews with select_related to include user information in a single query
+    reviews = venue.reviews.select_related('user').all()
     avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
     
     # Review form
@@ -162,7 +196,10 @@ def venue_detail(request, slug):
 
 def venue_list_by_category(request, category_slug):
     category = get_object_or_404(VenueCategory, slug=category_slug)
-    venues = Venue.objects.filter(category=category, status='approved')
+    # Add prefetch_related to optimize queries
+    venues = Venue.objects.filter(category=category, status='approved').prefetch_related(
+        'category', 'amenities', 'photos'
+    )
     
     return render(request, 'venues/venue_list.html', {
         'venues': venues,
@@ -174,12 +211,13 @@ def venue_search(request):
     venues = []
     
     if query:
+        # Add prefetch_related to optimize venue search results
         venues = Venue.objects.filter(
             (Q(name__icontains=query) |
             Q(description__icontains=query) |
             Q(city__icontains=query)),
             status='approved'
-        )
+        ).prefetch_related('category', 'amenities', 'photos')
     
     return render(request, 'venues/search_results.html', {
         'venues': venues,
