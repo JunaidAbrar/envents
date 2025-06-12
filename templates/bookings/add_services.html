@@ -100,12 +100,16 @@
                 
                 <!-- Services Categories -->
                 <div class="flex flex-wrap gap-2 mb-6">
-                    <button class="px-4 py-2 bg-indigo-600 text-white rounded-full text-sm font-medium">All Services</button>
-                    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-full text-sm font-medium">Catering</button>
-                    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-full text-sm font-medium">Photography</button>
-                    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-full text-sm font-medium">Decoration</button>
-                    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-full text-sm font-medium">Entertainment</button>
-                    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-full text-sm font-medium">AV Equipment</button>
+                    <a href="{% url 'bookings:add_services' booking.id %}" 
+                       class="px-4 py-2 {% if current_category_id == None or current_category_id == '' %}bg-indigo-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} rounded-full text-sm font-medium category-filter">
+                        All Services
+                    </a>
+                    {% for category in categories %}
+                    <a href="{% url 'bookings:add_services' booking.id %}?category={{ category.id }}" 
+                       class="px-4 py-2 {% if current_category_id == category.id|stringformat:'i' %}bg-indigo-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %} rounded-full text-sm font-medium">
+                        {{ category.name }}
+                    </a>
+                    {% endfor %}
                 </div>
                 
                 <div class="space-y-6">
@@ -479,5 +483,38 @@
             form.classList.add('hidden');
         }
     }
+    
+    // Preserve category filter when using pagination or other query parameters
+    function addCategoryFilter(url) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryId = urlParams.get('category');
+        
+        if (categoryId) {
+            // Check if URL already has parameters
+            const hasParams = url.includes('?');
+            const separator = hasParams ? '&' : '?';
+            return `${url}${separator}category=${categoryId}`;
+        }
+        
+        return url;
+    }
+    
+    // Modify any links in the page to preserve the category filter
+    document.addEventListener('DOMContentLoaded', function() {
+        const links = document.querySelectorAll('a[href^="{% url "bookings:add_services" booking.id %}"]');
+        links.forEach(link => {
+            if (!link.href.includes('category=')) {
+                const originalHref = link.getAttribute('href');
+                link.addEventListener('click', function(e) {
+                    if (!this.classList.contains('category-filter')) {
+                        e.preventDefault();
+                        window.location.href = addCategoryFilter(originalHref);
+                    }
+                });
+            } else {
+                link.classList.add('category-filter');
+            }
+        });
+    });
 </script>
 {% endblock %}

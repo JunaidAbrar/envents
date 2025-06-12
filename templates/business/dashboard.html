@@ -4,7 +4,7 @@
 {% block title %}Business Dashboard | Envents{% endblock %}
 
 {% block content %}
-<div class="container mx-auto py-8">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>
@@ -18,20 +18,22 @@
     <!-- Dashboard Content -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Venue Submission Card -->
-        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-            <div class="mb-4 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                <h2 class="text-xl font-semibold ml-3">Submit a Venue</h2>
+        <div class="bg-white rounded-lg shadow-md p-8 hover:shadow-xl transition-all duration-300 border border-gray-100 transform hover:-translate-y-1">
+            <div class="mb-6 flex items-center">
+                <div class="p-3 bg-indigo-100 rounded-lg mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Submit a Venue</h2>
             </div>
-            <p class="text-gray-600 mb-4">
+            <p class="text-gray-600 mb-6 text-lg">
                 Are you a venue owner? Submit your venue for our platform and reach more customers.
             </p>
-            <div class="mt-4">
-                <a href="{% url 'business:submit_venue' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+            <div class="mt-6">
+                <a href="{% url 'business:submit_venue' %}" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm hover:shadow transition-all duration-300">
                     Get Started
-                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
                     </svg>
                 </a>
@@ -39,20 +41,22 @@
         </div>
         
         <!-- Service Submission Card -->
-        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-            <div class="mb-4 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <h2 class="text-xl font-semibold ml-3">Submit a Service</h2>
+        <div class="bg-white rounded-lg shadow-md p-8 hover:shadow-xl transition-all duration-300 border border-gray-100 transform hover:-translate-y-1">
+            <div class="mb-6 flex items-center">
+                <div class="p-3 bg-teal-100 rounded-lg mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-teal-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Submit a Service</h2>
             </div>
-            <p class="text-gray-600 mb-4">
+            <p class="text-gray-600 mb-6 text-lg">
                 Are you a service provider? List your services on our platform and connect with event organizers.
             </p>
-            <div class="mt-4">
-                <a href="{% url 'business:submit_service' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+            <div class="mt-6">
+                <a href="{% url 'business:submit_service' %}" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm hover:shadow transition-all duration-300">
                     Get Started
-                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
                     </svg>
                 </a>
@@ -62,36 +66,42 @@
     
     <!-- Process Information -->
     <div class="mt-10 mb-16">
-        <h2 class="text-xl font-semibold mb-6">How it works</h2>
+        <h2 class="text-2xl font-bold text-gray-700 mb-8 text-center">HOW IT WORKS</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-5 rounded-lg shadow-sm">
-                <div class="flex items-center justify-center h-9 w-9 rounded-full bg-indigo-100 text-indigo-600 mb-3">
-                    <span class="text-lg font-medium">1</span>
+            <div class="bg-indigo-600 text-white rounded-lg overflow-hidden shadow-md flex flex-col h-full">
+                <div class="p-6 flex flex-col items-center text-center flex-grow">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                        <span class="text-2xl font-bold text-indigo-600">1</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Submit your listing</h3>
+                    <p class="text-sm">
+                        Fill out the form with all your details and upload high-quality images that showcase your venue or service.
+                    </p>
                 </div>
-                <h3 class="text-base font-semibold mb-2">Submit your listing</h3>
-                <p class="text-gray-600 text-sm">
-                    Fill out the form with all your details and upload high-quality images that showcase your venue or service.
-                </p>
             </div>
             
-            <div class="bg-white p-5 rounded-lg shadow-sm">
-                <div class="flex items-center justify-center h-9 w-9 rounded-full bg-indigo-100 text-indigo-600 mb-3">
-                    <span class="text-lg font-medium">2</span>
+            <div class="bg-indigo-600 text-white rounded-lg overflow-hidden shadow-md flex flex-col h-full">
+                <div class="p-6 flex flex-col items-center text-center flex-grow">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                        <span class="text-2xl font-bold text-indigo-600">2</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Admin review</h3>
+                    <p class="text-sm">
+                        Our team will review your submission to ensure it meets our quality standards and guidelines.
+                    </p>
                 </div>
-                <h3 class="text-base font-semibold mb-2">Admin review</h3>
-                <p class="text-gray-600 text-sm">
-                    Our team will review your submission to ensure it meets our quality standards and guidelines.
-                </p>
             </div>
             
-            <div class="bg-white p-5 rounded-lg shadow-sm">
-                <div class="flex items-center justify-center h-9 w-9 rounded-full bg-indigo-100 text-indigo-600 mb-3">
-                    <span class="text-lg font-medium">3</span>
+            <div class="bg-indigo-600 text-white rounded-lg overflow-hidden shadow-md flex flex-col h-full">
+                <div class="p-6 flex flex-col items-center text-center flex-grow">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                        <span class="text-2xl font-bold text-indigo-600">3</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Go live</h3>
+                    <p class="text-sm">
+                        Once approved, your venue or service will be listed on our platform, visible to potential customers.
+                    </p>
                 </div>
-                <h3 class="text-base font-semibold mb-2">Go live</h3>
-                <p class="text-gray-600 text-sm">
-                    Once approved, your venue or service will be listed on our platform, visible to potential customers.
-                </p>
             </div>
         </div>
     </div>

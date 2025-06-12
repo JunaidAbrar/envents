@@ -202,12 +202,27 @@ def add_services(request, booking_id):
     # If venue catering is selected, create a form that excludes catering services
     form = BookingServiceForm(exclude_catering=exclude_catering)
     
+    # Get all service categories for filtering
+    from apps.services.models import ServiceCategory
+    categories = ServiceCategory.objects.all()
+    
+    # Filter by category if specified
+    category_id = request.GET.get('category', None)
+    if category_id:
+        try:
+            services = services.filter(category_id=category_id)
+        except (ValueError, TypeError):
+            # If category_id is invalid, ignore the filter
+            category_id = None
+    
     return render(request, 'bookings/add_services.html', {
         'booking': booking,
         'services': services,
         'booking_services': booking_services,
         'form': form,
-        'exclude_catering': exclude_catering
+        'exclude_catering': exclude_catering,
+        'categories': categories,
+        'current_category_id': category_id
     })
 
 @login_required
