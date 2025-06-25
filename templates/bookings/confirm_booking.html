@@ -224,7 +224,7 @@
             <!-- Booking Request Confirmation -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <div class="p-6">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-6">Confirm Your Booking Request</h2>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">Confirm Your Quotation Request</h2>
                     
                     <form method="post" class="space-y-6">
                         {% csrf_token %}
@@ -242,13 +242,13 @@
                         
                         <!-- Important Info -->
                         <div class="bg-blue-50 rounded-lg p-4 text-sm text-blue-700">
-                            <p><strong>Important:</strong> By submitting this booking request, you are sending a request to book the venue and services. The venue owner will review your request and confirm your booking shortly. The status will be set to "Pending" until it is reviewed.</p>
+                            <p><strong>Important:</strong> By submitting this quotation request, you are sending a request to book the venue and services. The venue owner will review your request and confirm your booking shortly. The status will be set to "Pending" until it is reviewed.</p>
                         </div>
                         
                         <!-- Submit Button -->
                         <div>
                             <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-md shadow-sm">
-                                Submit Booking Request
+                                Submit Quotation Request
                             </button>
                         </div>
                     </form>

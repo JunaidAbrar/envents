@@ -47,57 +47,58 @@ class BookingAdmin(admin.ModelAdmin):
     
     # Booking status actions
     def confirm_bookings(self, request, queryset):
-        # When confirming bookings, send confirmation email
-        from django.core.mail import send_mail
-        from django.conf import settings
-        from django.template.loader import render_to_string
-        from django.utils.html import strip_tags
-        from django.urls import reverse
-        from django.contrib.sites.models import Site
+        """Mark bookings as confirmed and send confirmation emails"""
+        from .utils import send_booking_status_email
         
+        error_count = 0
         for booking in queryset:
-            # Send confirmation email
+            booking.status = 'confirmed'
+            booking.save()
+            
+            # The email will be sent via signal now, but we track errors for admin feedback
             try:
-                subject = f"Your Booking #{booking.id} is Confirmed"
-                
-                # Get the absolute URL to the booking detail
-                current_site = Site.objects.get_current()
-                booking_url = f"https://{current_site.domain}{reverse('bookings:booking_detail', args=[booking.id])}"
-                
-                # Render HTML email
-                html_message = render_to_string('emails/booking_confirmation.html', {
-                    'booking': booking,
-                    'booking_url': booking_url,
-                })
-                
-                # Plain text version for email clients that don't support HTML
-                plain_message = strip_tags(html_message)
-                
-                send_mail(
-                    subject,
-                    plain_message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [booking.user.email],
-                    html_message=html_message,
-                    fail_silently=False,
-                )
+                # We manually call it here to avoid dependency on the signal processing order
+                if not send_booking_status_email(booking, 'confirmed'):
+                    error_count += 1
             except Exception as e:
                 self.message_user(request, f"Error sending email for booking #{booking.id}: {str(e)}", level='error')
+                error_count += 1
         
-        queryset.update(status='confirmed')
-        self.message_user(request, f"{queryset.count()} booking(s) marked as confirmed and notification emails sent.")
+        # Provide feedback to the admin
+        if error_count > 0:
+            self.message_user(
+                request, 
+                f"{queryset.count()} booking(s) marked as confirmed, but there were {error_count} errors sending emails."
+            )
+        else:
+            self.message_user(
+                request, 
+                f"{queryset.count()} booking(s) marked as confirmed and notification emails sent."
+            )
     confirm_bookings.short_description = "Mark selected bookings as confirmed"
     
     def cancel_bookings(self, request, queryset):
-        queryset.update(status='cancelled')
+        """Mark bookings as cancelled and trigger notification emails"""
+        for booking in queryset:
+            booking.status = 'cancelled'
+            booking.save()
+        self.message_user(request, f"{queryset.count()} booking(s) marked as cancelled. Notification emails will be sent automatically.")
     cancel_bookings.short_description = "Mark selected bookings as cancelled"
     
     def mark_as_completed(self, request, queryset):
-        queryset.update(status='completed')
+        """Mark bookings as completed and trigger notification emails"""
+        for booking in queryset:
+            booking.status = 'completed'
+            booking.save()
+        self.message_user(request, f"{queryset.count()} booking(s) marked as completed. Notification emails will be sent automatically.")
     mark_as_completed.short_description = "Mark selected bookings as completed"
     
     def mark_as_pending(self, request, queryset):
-        queryset.update(status='pending')
+        """Mark bookings as pending and trigger notification emails"""
+        for booking in queryset:
+            booking.status = 'pending'
+            booking.save()
+        self.message_user(request, f"{queryset.count()} booking(s) marked as pending. Notification emails will be sent automatically.")
     mark_as_pending.short_description = "Mark selected bookings as pending (quotation accepted)"
     
     def set_quoted_price(self, request, queryset):
@@ -120,6 +121,7 @@ class BookingAdmin(admin.ModelAdmin):
                 quoted_message = form.cleaned_data['quoted_message']
                 
                 count = 0
+                error_count = 0
                 for booking in queryset:
                     booking.quoted_price = quoted_price
                     booking.quoted_message = quoted_message
@@ -127,7 +129,17 @@ class BookingAdmin(admin.ModelAdmin):
                     booking.save()
                     count += 1
                 
-                self.message_user(request, f"Successfully set quoted price for {count} bookings.")
+                # Provide feedback with email notification info
+                if error_count > 0:
+                    self.message_user(
+                        request, 
+                        f"Successfully set quoted price for {count} bookings, but there were {error_count} errors sending notification emails."
+                    )
+                else:
+                    self.message_user(
+                        request, 
+                        f"Successfully set quoted price for {count} bookings. Notification emails will be sent automatically."
+                    )
                 return HttpResponseRedirect(request.get_full_path())
         
         form = QuotationForm(initial={'_selected_action': request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})

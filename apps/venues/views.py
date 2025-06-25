@@ -29,14 +29,16 @@ def venue_list(request):
 
     # Filter by categories
     categories = request.GET.getlist('categories')
+    # Filter out empty strings
+    categories = [cat for cat in categories if cat]
     if categories:
         venues_queryset = venues_queryset.filter(category__id__in=categories).distinct()
     
     # Filter by capacity
-    min_capacity = request.GET.get('capacity')
-    if min_capacity and min_capacity != '1000+':  # Handle the 1000+ special case
-        venues_queryset = venues_queryset.filter(capacity__gte=min_capacity)
-    elif min_capacity == '1000+':
+    capacity = request.GET.get('capacity')
+    if capacity and capacity != '1000+':  # Handle the 1000+ special case
+        venues_queryset = venues_queryset.filter(capacity__gte=capacity)
+    elif capacity == '1000+':
         venues_queryset = venues_queryset.filter(capacity__gte=1000)
     
     # Filter by price range
@@ -55,36 +57,12 @@ def venue_list(request):
     
     # Filter by amenities
     amenities = request.GET.getlist('amenities')
+    # Filter out empty strings
+    amenities = [a for a in amenities if a]
     if amenities:
         # Convert string IDs to integers before filtering
         amenities_int = [int(a) for a in amenities]
         venues_queryset = venues_queryset.filter(amenities__id__in=amenities_int).distinct()
-    
-    # For home page search compatibility
-    # Redirect from the home search with location, guests and type parameters
-    location = request.GET.get('location')
-    if location:
-        venues_queryset = venues_queryset.filter(city__iexact=location)
-        city = location  # Set city for template rendering
-    
-    guests = request.GET.get('guests')
-    if guests:
-        if guests == '1000+':  # Handle the 1000+ special case
-            venues_queryset = venues_queryset.filter(capacity__gte=1000)
-            min_capacity = '1000+'  # Set min_capacity for template rendering
-        else:
-            try:
-                guests_int = int(guests)
-                venues_queryset = venues_queryset.filter(capacity__gte=guests_int)
-                min_capacity = guests  # Set min_capacity for template rendering
-            except ValueError:
-                # If the value can't be converted to an integer, skip this filter
-                pass
-    
-    event_type = request.GET.get('type')
-    # Filter venues by category if type is provided
-    if event_type:
-        venues_queryset = venues_queryset.filter(category__id=event_type).distinct()
     
     # Sorting
     sort = request.GET.get('sort', 'name')
@@ -118,9 +96,9 @@ def venue_list(request):
         venues = paginator.page(paginator.num_pages)
     
     return render(request, 'venues/venue_list.html', {
-        'venues': venues,
+        'page_obj': venues,  # Only need one variable for the paginated venues
         'all_categories': all_categories,
-        'min_capacity': min_capacity,
+        'min_capacity': capacity,  # Use the same variable name we use above
         'city': city,
         'sort': sort,
         'cities': cities,
@@ -128,7 +106,6 @@ def venue_list(request):
         'selected_amenities': amenities,  # Pass the original string IDs to maintain form state
         'user_favorites': user_favorites,
         'is_paginated': True if paginator.num_pages > 1 else False,
-        'page_obj': venues,
         'venues_count': total_venues,
     })
 
@@ -202,7 +179,7 @@ def venue_list_by_category(request, category_slug):
     )
     
     return render(request, 'venues/venue_list.html', {
-        'venues': venues,
+        'page_obj': venues,  # Use page_obj for consistency with venue_list view
         'category': category,
     })
 
@@ -220,7 +197,7 @@ def venue_search(request):
         ).prefetch_related('category', 'amenities', 'photos')
     
     return render(request, 'venues/search_results.html', {
-        'venues': venues,
+        'page_obj': venues,  # Use page_obj for consistency with other venue views
         'query': query
     })
 

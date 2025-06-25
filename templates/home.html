@@ -19,8 +19,8 @@
                     <form class="space-y-4" action="{% url 'venues:venue_list' %}" method="GET">
                         <div class="grid grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-gray-600 text-sm mb-1" for="location">Location?</label>
-                                <select id="location" name="location" class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700">
+                                <label class="block text-gray-600 text-sm mb-1" for="city">Location?</label>
+                                <select id="city" name="city" class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700">
                                     <option value="">Any location</option>
                                     {% for city in cities %}
                                         <option value="{{ city }}">{{ city }}</option>
@@ -29,8 +29,8 @@
                             </div>
                             
                             <div>
-                                <label class="block text-gray-600 text-sm mb-1" for="guests">Number of Guests</label>
-                                <select id="guests" name="guests" class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700">
+                                <label class="block text-gray-600 text-sm mb-1" for="capacity">Number of Guests</label>
+                                <select id="capacity" name="capacity" class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700">
                                     <option value="">Any capacity</option>
                                     <option value="10">Up to 10 guests</option>
                                     <option value="50">Up to 50 guests</option>
@@ -44,7 +44,7 @@
                             
                             <div>
                                 <label class="block text-gray-600 text-sm mb-1" for="program-type">Program Type</label>
-                                <select id="program-type" name="type" class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700">
+                                <select id="program-type" name="categories" class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700">
                                     <option value="">Any type</option>
                                     {% for category in categories %}
                                         <option value="{{ category.id }}">{{ category.name }}</option>

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Booking Completed</title>
+    <title>Price Quote for Your Booking</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,7 +13,7 @@
             padding: 20px;
         }
         .header {
-            background-color: #059669;
+            background-color: #6366f1;
             color: white;
             padding: 20px;
             text-align: center;
@@ -31,9 +31,9 @@
             margin: 15px 0;
             border-radius: 5px;
         }
-        .thank-you {
-            background-color: #ecfdf5;
-            border-left: 4px solid #059669;
+        .price-quote {
+            background-color: #ede9fe;
+            border-left: 4px solid #6366f1;
             padding: 15px;
             margin: 15px 0;
             border-radius: 0 5px 5px 0;
@@ -46,7 +46,7 @@
         }
         .button {
             display: inline-block;
-            background-color: #059669;
+            background-color: #6366f1;
             color: white;
             padding: 10px 20px;
             text-decoration: none;
@@ -57,12 +57,12 @@
 </head>
 <body>
     <div class="header">
-        <h1>Booking Completed</h1>
+        <h1>Your Booking Price Quote</h1>
     </div>
     <div class="content">
         <p>Dear {{ booking.user.first_name|default:booking.user.username }},</p>
         
-        <p>We're pleased to inform you that your event has been successfully completed! We hope everything went according to plan and that you and your guests had a wonderful time.</p>
+        <p>We're pleased to provide you with a quotation for your <strong>{{ booking.event_type }}</strong> event on <strong>{{ booking.event_date }}</strong>.</p>
         
         <div class="booking-info">
             <h3>Booking Details:</h3>
@@ -71,25 +71,28 @@
             <p><strong>Venue:</strong> {{ booking.venue.name }}</p>
             <p><strong>Location:</strong> {{ booking.venue.address }}, {{ booking.venue.city }}</p>
             {% endif %}
-            <p><strong>Event Type:</strong> {{ booking.event_type }}</p>
             <p><strong>Date:</strong> {{ booking.event_date }}</p>
             <p><strong>Time:</strong> {{ booking.start_time }} to {{ booking.end_time }}</p>
             <p><strong>Guests:</strong> {{ booking.guest_count }}</p>
         </div>
         
-        <div class="thank-you">
-            <h3>Thank You!</h3>
-            <p>Thank you for choosing Envents for your event. We value your business and would love to hear about your experience.</p>
+        <div class="price-quote">
+            <h3>Your Price Quote:</h3>
+            <p><strong>Total Quoted Price:</strong> ৳{{ booking.quoted_price }}</p>
+            {% if booking.quoted_message %}
+            <p><strong>Additional Information:</strong></p>
+            <p>{{ booking.quoted_message }}</p>
+            {% endif %}
         </div>
         
-        <p>If you have a moment, please consider leaving a review or providing feedback about your experience. Your input helps us serve you better in the future.</p>
+        <p>To accept this quote and proceed with your booking, please click the button below to visit your booking page. From there, you can review all details and confirm your acceptance.</p>
         
-        <p>We look forward to hosting your next event!</p>
+        <p>If you have any questions about this quotation or would like to discuss any adjustments, please don't hesitate to contact us.</p>
         
         <p>Best regards,<br>The Envents Team</p>
         
         <div style="text-align: center;">
-            <a href="{{ booking_url }}" class="button">View Booking Details</a>
+            <a href="{{ booking_url }}" class="button">View Quote & Booking Details</a>
         </div>
     </div>
     <div class="footer">

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Booking Cancellation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #ef4444;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .booking-info {
+            background-color: #f9fafb;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4f46e5;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Booking Cancelled</h1>
+    </div>
+    <div class="content">
+        <p>Dear {{ booking.user.first_name|default:booking.user.username }},</p>
+        
+        <p>We regret to inform you that your booking has been cancelled.</p>
+        
+        <div class="booking-info">
+            <h3>Booking Details:</h3>
+            <p><strong>Booking Reference:</strong> #{{ booking.id }}</p>
+            {% if booking.venue %}
+            <p><strong>Venue:</strong> {{ booking.venue.name }}</p>
+            <p><strong>Location:</strong> {{ booking.venue.address }}, {{ booking.venue.city }}</p>
+            {% endif %}
+            <p><strong>Event Type:</strong> {{ booking.event_type }}</p>
+            <p><strong>Date:</strong> {{ booking.event_date }}</p>
+            <p><strong>Time:</strong> {{ booking.start_time }} to {{ booking.end_time }}</p>
+            <p><strong>Guests:</strong> {{ booking.guest_count }}</p>
+        </div>
+        
+        <p>If you have questions about this cancellation or would like to make a new booking, please contact our customer support team.</p>
+        
+        <p>We hope to have the opportunity to host your event in the future.</p>
+        
+        <p>Best regards,<br>The Envents Team</p>
+        
+        <div style="text-align: center;">
+            <a href="{{ booking_url }}" class="button">View Booking Details</a>
+        </div>
+    </div>
+    <div class="footer">
+        <p>© 2025 Envents. All rights reserved.</p>
+        <p>This email was sent to {{ booking.user.email }}</p>
+    </div>
+</body>
+</html>
