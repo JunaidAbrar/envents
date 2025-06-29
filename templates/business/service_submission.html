@@ -157,6 +157,39 @@
                         <span>Provide a detailed description of your service, including what customers can expect, your experience, and what makes your service unique.</span>
                     </p>
                 </div>
+                
+                <!-- Contact Information -->
+                <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <label for="{{ service_form.contact_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Contact Number <span class="text-red-500">*</span>
+                        </label>
+                        {{ service_form.contact_number }}
+                        {% if service_form.contact_number.errors %}
+                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                                {{ service_form.contact_number.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <label for="{{ service_form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Contact Email <span class="text-red-500">*</span>
+                        </label>
+                        {{ service_form.email }}
+                        {% if service_form.email.errors %}
+                            <p class="mt-1 text-sm text-red-600 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                                {{ service_form.email.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
             
             <!-- Pricing Information -->

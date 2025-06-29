@@ -18,28 +18,30 @@
     <div class="bg-white rounded-lg overflow-hidden shadow-md">
         <div class="md:flex">
             <!-- Left column - Photos -->
-            <div class="md:w-1/2 p-4">
+            <div class="md:w-1/2 p-4 photo-gallery">
                 <!-- Main Photo -->
-                <div class="mb-4 rounded-lg overflow-hidden">
+                <div class="mb-4 rounded-lg overflow-hidden main-photo flex justify-center bg-gray-100">
                     {% if service.main_photo %}
-                    <img src="{{ service.main_photo.image.url }}" alt="{{ service.name }}" class="w-full h-96 object-cover">
+                    <img src="{{ service.main_photo.image.url }}" alt="{{ service.name }}" class="cursor-pointer hover:opacity-90 object-contain" style="max-height: 400px; width: auto; max-width: 100%;">
                     {% else %}
                     <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                         alt="{{ service.name }}" class="w-full h-96 object-cover">
+                         alt="{{ service.name }}" class="cursor-pointer hover:opacity-90 object-contain" style="max-height: 400px; width: auto; max-width: 100%;">
                     {% endif %}
                 </div>
                 
                 <!-- Photo Gallery -->
-                <div class="grid grid-cols-4 gap-2">
+                <div class="flex flex-wrap gap-2 thumbnails-container">
                     {% for photo in service.photos.all %}
-                    <div class="rounded-lg overflow-hidden">
-                        <img src="{{ photo.image.url }}" alt="{{ photo.caption }}" class="w-full h-20 object-cover cursor-pointer hover:opacity-80">
+                    <div class="rounded-lg overflow-hidden thumbnail flex-grow-0" style="flex-basis: calc(25% - 6px);">
+                        <img src="{{ photo.image.url }}" alt="{{ photo.caption }}" class="w-full h-20 object-cover cursor-pointer hover:opacity-80" 
+                             data-full-src="{{ photo.image.url }}">
                     </div>
                     {% empty %}
                     <!-- Display placeholder images if no photos -->
                     {% for i in "1234" %}
-                    <div class="rounded-lg overflow-hidden">
-                        <img src="https://source.unsplash.com/random/300x200?events&sig={{ i }}" alt="Gallery image" class="w-full h-20 object-cover">
+                    <div class="rounded-lg overflow-hidden thumbnail flex-grow-0" style="flex-basis: calc(25% - 6px);">
+                        <img src="https://source.unsplash.com/random/300x200?events&sig={{ i }}" alt="Gallery image" 
+                             class="w-full h-20 object-cover cursor-pointer hover:opacity-80">
                     </div>
                     {% endfor %}
                     {% endfor %}
@@ -229,6 +231,9 @@
                 }
             });
         });
+        
+        // The gallery initialization is now handled by lightbox.js
+    }
     });
 </script>
 {% endblock %}

@@ -101,21 +101,21 @@
                         
                         <!-- Rating -->
                         <div class="flex items-center mb-3">
-                            <div class="flex text-yellow-400">
+                            <div class="flex">
                                 {% for i in "12345" %}
-                                {% if forloop.counter <= service.reviews.all|length %}
-                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                {% if forloop.counter <= service.avg_rating|default:0 %}
+                                <svg class="w-4 h-4 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
                                 </svg>
                                 {% else %}
-                                <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
                                 </svg>
                                 {% endif %}
                                 {% endfor %}
                             </div>
                             <span class="text-gray-500 text-sm ml-1">
-                                ({{ service.reviews.count }})
+                                {{ service.avg_rating|floatformat:1|default:"0.0" }} ({{ service.review_count }})
                             </span>
                         </div>
                         

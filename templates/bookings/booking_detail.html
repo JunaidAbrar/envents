@@ -357,11 +357,11 @@
                         <a href="{% url 'bookings:add_services' booking.id %}" class="block w-full px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-center rounded-md">
                             Add Services
                         </a>
-                        <a href="#" class="block w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-center rounded-md">
+                        <a href="mailto:envents.team@gmail.com?subject=Support%20Request%20-%20Booking%20%23{{ booking.id }}&body=Booking%20ID:%20{{ booking.id }}%0D%0ABooking%20Status:%20{{ booking.status }}%0D%0A%0D%0APlease%20describe%20your%20issue%20here:" class="block w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-center rounded-md">
                             Contact Support
                         </a>
                         {% elif booking.status == 'confirmed' %}
-                        <a href="#" class="block w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-center rounded-md">
+                        <a href="mailto:envents.team@gmail.com?subject=Support%20Request%20-%20Booking%20%23{{ booking.id }}&body=Booking%20ID:%20{{ booking.id }}%0D%0ABooking%20Status:%20{{ booking.status }}%0D%0A%0D%0APlease%20describe%20your%20issue%20here:" class="block w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-center rounded-md">
                             Contact Support
                         </a>
                         {% elif booking.status == 'completed' %}

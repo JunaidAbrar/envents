@@ -67,14 +67,13 @@
             <p><strong>Date:</strong> {{ booking.event_date }}</p>
             <p><strong>Time:</strong> {{ booking.start_time }} to {{ booking.end_time }}</p>
             <p><strong>Guests:</strong> {{ booking.guest_count }}</p>
-            <p><strong>Total Cost:</strong> ${{ booking.total_cost }}</p>
+            <p><strong>Final Quoted Price:</strong> BDT{{ booking.quoted_price }}</p>
         </div>
         
         <p>Thank you for choosing Envents for your event needs. If you have any questions or need to make changes to your booking, please don't hesitate to contact us.</p>
         
         <p>Best regards,<br>The Envents Team</p>
         
-        <a href="{{ booking_url }}" class="button">View Booking Details</a>
     </div>
     <div class="footer">
         <p>© 2025 Envents. All rights reserved.</p>

@@ -26,42 +26,34 @@
 
     <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
         <!-- Venue Photos Gallery -->
-        <div class="relative">
+        <div class="photo-gallery">
             {% if venue.photos.all %}
-                <div id="venue-gallery" class="h-96 w-full relative">
+                <!-- Main Photo -->
+                <div class="main-photo relative mb-4 flex justify-center bg-gray-100">
+                    <img src="{{ venue.photos.first.image.url }}" alt="{{ venue.photos.first.caption|default:venue.name }}" 
+                         class="cursor-pointer hover:opacity-90 object-contain" 
+                         style="max-height: 500px; width: auto; max-width: 100%;">
+                    
+                    {% if venue.is_featured %}
+                        <div class="absolute top-4 left-4">
+                            <span class="bg-yellow-400 text-yellow-800 text-sm px-3 py-1 rounded-md font-semibold">Featured</span>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Photo Thumbnails -->
+                <div class="flex flex-wrap gap-2 thumbnails-container px-4">
                     {% for photo in venue.photos.all %}
-                        <img src="{{ photo.image.url }}" alt="{{ photo.caption|default:venue.name }}" class="w-full h-full object-cover absolute inset-0 {% if not forloop.first %}opacity-0{% endif %} transition-opacity duration-500">
+                    <div class="rounded-lg overflow-hidden thumbnail flex-grow-0 {% if forloop.first %}ring-2 ring-indigo-500{% endif %}" style="flex-basis: calc(20% - 8px);">
+                        <img src="{{ photo.image.url }}" alt="{{ photo.caption|default:venue.name }}" 
+                             class="w-full h-20 object-cover cursor-pointer hover:opacity-80" 
+                             data-full-src="{{ photo.image.url }}">
+                    </div>
                     {% endfor %}
                 </div>
-                {% if venue.photos.count > 1 %}
-                    <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
-                        <button id="prev-photo" class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2">
-                        <button id="next-photo" class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                        {% for photo in venue.photos.all %}
-                            <span class="w-2 h-2 rounded-full bg-white opacity-50 {% if forloop.first %}opacity-100{% endif %}" data-index="{{ forloop.counter0 }}"></span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
             {% else %}
                 <div class="h-96 w-full flex items-center justify-center bg-gray-200 text-gray-500">
                     No photos available
-                </div>
-            {% endif %}
-            {% if venue.is_featured %}
-                <div class="absolute top-4 left-4">
-                    <span class="bg-yellow-400 text-yellow-800 text-sm px-3 py-1 rounded-md font-semibold">Featured</span>
                 </div>
             {% endif %}
         </div>
@@ -237,48 +229,7 @@
 
 {% block extra_js %}
 <script>
-    // Simple gallery slideshow script
-    document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('#venue-gallery img');
-        const indicators = document.querySelectorAll('.absolute.bottom-4 span');
-        const prevBtn = document.getElementById('prev-photo');
-        const nextBtn = document.getElementById('next-photo');
-        
-        if (!images.length || images.length <= 1) return;
-        
-        let currentIndex = 0;
-        
-        function showImage(index) {
-            images.forEach((img, i) => {
-                img.classList.toggle('opacity-0', i !== index);
-            });
-            
-            indicators.forEach((dot, i) => {
-                dot.classList.toggle('opacity-100', i === index);
-                dot.classList.toggle('opacity-50', i !== index);
-            });
-            
-            currentIndex = index;
-        }
-        
-        if (prevBtn && nextBtn) {
-            prevBtn.addEventListener('click', function() {
-                const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
-                showImage(newIndex);
-            });
-            
-            nextBtn.addEventListener('click', function() {
-                const newIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
-                showImage(newIndex);
-            });
-        }
-        
-        indicators.forEach((dot, i) => {
-            dot.addEventListener('click', function() {
-                showImage(i);
-            });
-        });
-    });
+    // The gallery initialization is now handled by lightbox.js
 </script>
 {% endblock %}
 
