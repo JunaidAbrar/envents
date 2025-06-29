@@ -23,7 +23,7 @@ class VenueSubmissionForm(forms.ModelForm):
         model = Venue
         fields = [
             'name', 'description', 'categories', 'location', 'city', 
-            'address', 'capacity', 'price_per_hour', 'amenities'
+            'address', 'capacity', 'price_per_hour', 'contact_number', 'email', 'amenities'
         ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Venue Name'}),
@@ -33,6 +33,8 @@ class VenueSubmissionForm(forms.ModelForm):
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'capacity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'price_per_hour': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': 0.01}),
+            'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Phone Number'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Contact Email'}),
         }
     
     def __init__(self, *args, **kwargs):
@@ -60,7 +62,7 @@ class ServiceSubmissionForm(forms.ModelForm):
     class Meta:
         model = Service
         fields = [
-            'name', 'description', 'category', 'base_price', 'price_type'
+            'name', 'description', 'category', 'base_price', 'price_type', 'contact_number', 'email'
         ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Service Name'}),
@@ -68,6 +70,8 @@ class ServiceSubmissionForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': 'form-control'}),
             'base_price': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': 0.01}),
             'price_type': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Per hour, flat rate, etc.'}),
+            'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Phone Number'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Contact Email'}),
         }
     
     def __init__(self, *args, **kwargs):
