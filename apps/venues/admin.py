@@ -31,7 +31,7 @@ class VenueCateringPackageInline(admin.TabularInline):
 
 @admin.register(Venue)
 class VenueAdmin(admin.ModelAdmin):
-    list_display = ('name', 'get_categories', 'city', 'capacity', 'price_per_hour', 'status', 'is_featured')
+    list_display = ('name', 'get_categories', 'city', 'capacity', 'price_per_hour', 'contact_number', 'email', 'status', 'is_featured')
     list_filter = ('status', 'is_featured', 'city', 'category')
     search_fields = ('name', 'description', 'address', 'city')
     prepopulated_fields = {'slug': ('name',)}

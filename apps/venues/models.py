@@ -48,6 +48,8 @@ class Venue(models.Model):
     address = models.TextField()
     capacity = models.PositiveIntegerField(help_text="Maximum number of guests")
     price_per_hour = models.DecimalField(max_digits=10, decimal_places=2)
+    contact_number = models.CharField(max_length=20, blank=True, help_text="Contact phone number for this venue")
+    email = models.EmailField(blank=True, help_text="Contact email for this venue")
     amenities = models.ManyToManyField(Amenity, related_name='venues', blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     is_featured = models.BooleanField(default=False)

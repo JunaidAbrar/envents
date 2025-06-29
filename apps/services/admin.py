@@ -25,7 +25,7 @@ class ServicePackageInline(admin.TabularInline):
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'provider', 'base_price', 'price_type', 'status', 'is_featured')
+    list_display = ('name', 'category', 'provider', 'base_price', 'price_type', 'contact_number', 'email', 'status', 'is_featured')
     list_filter = ('status', 'is_featured', 'category', 'price_type')
     search_fields = ('name', 'description', 'provider__username', 'provider__business_name')
     prepopulated_fields = {'slug': ('name',)}

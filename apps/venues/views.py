@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q, Avg
+from django.db.models import Q, Avg, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Venue, VenueCategory, VenueReview, FavoriteVenue, Amenity
 from .forms import VenueReviewForm
@@ -10,6 +10,9 @@ def venue_list(request):
     # Use select_related and prefetch_related to avoid N+1 queries
     venues_queryset = Venue.objects.filter(status='approved').prefetch_related(
         'category', 'amenities', 'photos'
+    ).annotate(
+        average_rating=Avg('reviews__rating'),
+        review_count=Count('reviews')
     )
     all_categories = VenueCategory.objects.all()
     all_amenities = Amenity.objects.all()
@@ -176,6 +179,9 @@ def venue_list_by_category(request, category_slug):
     # Add prefetch_related to optimize queries
     venues = Venue.objects.filter(category=category, status='approved').prefetch_related(
         'category', 'amenities', 'photos'
+    ).annotate(
+        average_rating=Avg('reviews__rating'),
+        review_count=Count('reviews')
     )
     
     return render(request, 'venues/venue_list.html', {
@@ -194,7 +200,10 @@ def venue_search(request):
             Q(description__icontains=query) |
             Q(city__icontains=query)),
             status='approved'
-        ).prefetch_related('category', 'amenities', 'photos')
+        ).prefetch_related('category', 'amenities', 'photos').annotate(
+            average_rating=Avg('reviews__rating'),
+            review_count=Count('reviews')
+        )
     
     return render(request, 'venues/search_results.html', {
         'page_obj': venues,  # Use page_obj for consistency with other venue views

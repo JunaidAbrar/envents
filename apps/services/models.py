@@ -34,6 +34,8 @@ class Service(models.Model):
     category = models.ForeignKey(ServiceCategory, on_delete=models.CASCADE, related_name='services')
     base_price = models.DecimalField(max_digits=10, decimal_places=2)
     price_type = models.CharField(max_length=50, help_text="Per hour, flat rate, etc.")
+    contact_number = models.CharField(max_length=20, blank=True, help_text="Contact phone number for this service")
+    email = models.EmailField(blank=True, help_text="Contact email for this service")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     is_featured = models.BooleanField(default=False)
     

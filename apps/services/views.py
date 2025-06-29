@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q, Avg
+from django.db.models import Q, Avg, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Service, ServiceCategory, ServiceReview, FavoriteService
 from .forms import ServiceReviewForm
@@ -9,7 +9,10 @@ from .forms import ServiceReviewForm
 def service_list(request):
     """Display list of services with filtering options"""
     # Use prefetch_related to avoid N+1 queries
-    services = Service.objects.filter(status='approved').select_related('category', 'provider').prefetch_related('photos')
+    services = Service.objects.filter(status='approved').select_related('category', 'provider').prefetch_related('photos').annotate(
+        avg_rating=Avg('reviews__rating'),
+        review_count=Count('reviews')
+    )
     categories = ServiceCategory.objects.all()
     
     # Filter by category
