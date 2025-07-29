@@ -59,18 +59,14 @@
                     <!-- Categories -->
                     <div>
                         <h4 class="font-medium mb-2">Categories</h4>
-                        <div class="space-y-2">
+                        <select name="category" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="">All Categories</option>
                             {% for cat in all_categories %}
-                                <div class="flex items-center">
-                                    <input type="checkbox" id="category-{{ cat.id }}" name="categories" value="{{ cat.id }}" 
-                                        {% if cat.id|stringformat:"i" in request.GET.categories|default:"" %}checked{% endif %}
-                                        class="h-4 w-4 border-gray-300 rounded text-indigo-600 focus:ring-indigo-500">
-                                    <label for="category-{{ cat.id }}" class="ml-2 block text-sm text-gray-700">
-                                        {{ cat.name }}
-                                    </label>
-                                </div>
+                                <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"i" %}selected{% endif %}>
+                                    {{ cat.name }}
+                                </option>
                             {% endfor %}
-                        </div>
+                        </select>
                     </div>
                     
                     <!-- Price Range -->
@@ -175,18 +171,14 @@
                         <!-- Categories -->
                         <div>
                             <h4 class="font-medium mb-2">Categories</h4>
-                            <div class="grid grid-cols-2 gap-2">
+                            <select name="category" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                <option value="">All Categories</option>
                                 {% for cat in all_categories %}
-                                    <div class="flex items-center">
-                                        <input type="checkbox" id="mobile-category-{{ cat.id }}" name="categories" value="{{ cat.id }}" 
-                                            {% if cat.id|stringformat:"i" in request.GET.categories|default:"" %}checked{% endif %}
-                                            class="h-4 w-4 border-gray-300 rounded text-indigo-600 focus:ring-indigo-500">
-                                        <label for="mobile-category-{{ cat.id }}" class="ml-2 block text-sm text-gray-700">
-                                            {{ cat.name }}
-                                        </label>
-                                    </div>
+                                    <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"i" %}selected{% endif %}>
+                                        {{ cat.name }}
+                                    </option>
                                 {% endfor %}
-                            </div>
+                            </select>
                         </div>
                         
                         <!-- Price Range -->

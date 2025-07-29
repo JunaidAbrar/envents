@@ -98,6 +98,13 @@ class VenuePhoto(models.Model):
 
     def __str__(self):
         return f"Photo for {self.venue.name}"
+    
+    def save(self, *args, **kwargs):
+        print(f"VenuePhoto.save called for venue: {self.venue}")
+        print(f"Image field: {self.image.name if self.image else 'No image'}")
+        print(f"Caption: {self.caption}")
+        super().save(*args, **kwargs)
+        print(f"VenuePhoto saved with ID: {self.id}")
 
 class DisabledDate(models.Model):
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='disabled_dates')

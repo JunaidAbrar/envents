@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from . import views
+from .health_checks import health_check, full_health_check
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,6 +30,10 @@ urlpatterns = [
     path('bookings/', include('apps.bookings.urls')),
     path('services/', include('apps.services.urls')),
     path('business/', include('business.urls')),  # Added business app URLs
+    
+    # Health check endpoints
+    path('health/', health_check, name='health_check'),
+    path('health/full/', full_health_check, name='full_health_check'),
 ]
 
 # Serve media and static files in development

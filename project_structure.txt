@@ -1,0 +1,82 @@
+.
+├── apps
+│   ├── accounts
+│   ├── bookings
+│   ├── services
+│   └── venues
+├── business
+│   ├── admin.py
+│   ├── apps.py
+│   ├── forms.py
+│   ├── __init__.py
+│   ├── migrations
+│   ├── models.py
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── debug_storage.py
+├── docs
+│   └── style-guide.md
+├── envents docs
+│   ├── copilot_instructions.md
+│   ├── project_structure.txt
+│   └── readme.txt
+├── envents_project
+│   ├── asgi.py
+│   ├── context_processors.py
+│   ├── health_checks.py
+│   ├── __init__.py
+│   ├── s3_storage.py
+│   ├── settings
+│   ├── storage_backends.py
+│   ├── urls.py
+│   ├── views.py
+│   └── wsgi.py
+├── envents.zip
+├── keys
+│   └── LightsailDefaultKey-ap-south-1.pem
+├── logs
+│   └── django_s3.log
+├── manage.py
+├── media
+│   ├── profile_pictures
+│   ├── services
+│   ├── venues
+│   └── videos
+├── nginx
+│   └── conf
+├── project_structure.txt
+├── README.md
+├── requirements.txt
+├── scripts
+├── static
+│   ├── css
+│   ├── images
+│   └── js
+├── staticfiles
+│   ├── admin
+│   ├── css
+│   ├── images
+│   ├── js
+│   └── rest_framework
+├── templates
+│   ├── about.html
+│   ├── accounts
+│   ├── admin
+│   ├── base.html
+│   ├── bookings
+│   ├── business
+│   ├── components
+│   ├── debug.html
+│   ├── emails
+│   ├── home.html
+│   ├── services
+│   └── venues
+└── theme
+    ├── apps.py
+    ├── __init__.py
+    ├── static
+    ├── static_src
+    └── templates
+
+44 directories, 35 files

@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'apps.venues.apps.VenuesConfig',
     'apps.bookings.apps.BookingsConfig',
     'apps.services.apps.ServicesConfig',
-    'apps.mcp',  # MCP app
+    'business.apps.BusinessConfig'  # Business app
 ]
 
 MIDDLEWARE = [
@@ -62,8 +62,10 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.media',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'envents_project.context_processors.debug',
             ],
         },
     },
@@ -119,3 +121,9 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 NPM_BIN_PATH = "npm"  # Path to npm executable
+
+# Default value for DEBUG to be overridden in specific environment settings
+DEBUG = False
+
+# Set TAILWIND_DEV_MODE (will be overridden in environment-specific settings)
+TAILWIND_DEV_MODE = False

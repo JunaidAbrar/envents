@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Debug Page{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-4">Debug Page</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-lg font-semibold mb-2">Page Structure</h2>
+        <p>This is a simple page to debug HTML and JavaScript issues.</p>
+    </div>
+    
+    <div class="mt-4 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-lg font-semibold mb-2">Script Tags</h2>
+        <pre id="script-tags" class="bg-gray-100 p-4 rounded overflow-x-auto">
+            <!-- Will be filled by JavaScript -->
+        </pre>
+    </div>
+    
+    <div class="mt-4 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-lg font-semibold mb-2">Stylesheets</h2>
+        <pre id="stylesheets" class="bg-gray-100 p-4 rounded overflow-x-auto">
+            <!-- Will be filled by JavaScript -->
+        </pre>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show all script tags in the document
+        const scriptTagsEl = document.getElementById('script-tags');
+        const scripts = document.querySelectorAll('script');
+        let scriptHTML = '';
+        
+        scripts.forEach((script, index) => {
+            if (script.src) {
+                scriptHTML += `${index + 1}. External script: ${script.src}\n`;
+            } else {
+                const content = script.innerHTML.trim().substring(0, 100) + (script.innerHTML.length > 100 ? '...' : '');
+                scriptHTML += `${index + 1}. Inline script: ${content}\n`;
+            }
+        });
+        
+        scriptTagsEl.textContent = scriptHTML || 'No scripts found';
+        
+        // Show all stylesheets in the document
+        const stylesheetsEl = document.getElementById('stylesheets');
+        const links = document.querySelectorAll('link[rel="stylesheet"]');
+        let linkHTML = '';
+        
+        links.forEach((link, index) => {
+            linkHTML += `${index + 1}. ${link.href}\n`;
+        });
+        
+        stylesheetsEl.textContent = linkHTML || 'No stylesheets found';
+    });
+</script>
+{% endblock %}

@@ -8,8 +8,54 @@
     <title>{% block title %}Envents{% endblock %}</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{% static 'images/envents_logo.png' %}">
-    <!-- Tailwind CSS -->
+    <!-- Main Styles (Tailwind + Custom) -->
+    <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+    <!-- Fallback for development -->
+    {% if debug %}
+    <!-- If styles.css fails to load, we include the Tailwind CSS directly -->
     {% tailwind_css %}
+    <!-- Hide the redundant CSS if the main file loaded correctly -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                var styleLoaded = false;
+                for (var i = 0; i < document.styleSheets.length; i++) {
+                    try {
+                        if (document.styleSheets[i].href && document.styleSheets[i].href.includes('dist/styles.css')) {
+                            styleLoaded = true;
+                            break;
+                        }
+                    } catch (e) {}
+                }
+                
+                // If styles.css loaded correctly, hide the fallback CSS
+                if (styleLoaded) {
+                    var fallbackLink = document.querySelector('link[href*="tailwind.css"]');
+                    if (fallbackLink) {
+                        fallbackLink.disabled = true;
+                    }
+                }
+            }, 300);
+        });
+    </script>
+    {% endif %}
+    <!-- Custom styles for fixing mobile issues -->
+    <style>
+        /* Fix for select dropdown arrow overlap on mobile */
+        @media (max-width: 640px) {
+            select {
+                padding-right: 30px !important; /* Increase right padding to prevent text overlap with arrow */
+                background-position: right 0.5rem center !important; /* Ensure arrow is properly positioned */
+                appearance: none; /* Use custom dropdown arrow */
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-size: 1.5em 1.5em;
+            }
+            option {
+                white-space: normal;
+            }
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
     <!-- Header -->

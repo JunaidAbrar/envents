@@ -31,9 +31,9 @@ class VenueSubmissionForm(forms.ModelForm):
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'General Location (e.g., Downtown)'}),
             'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'capacity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-            'price_per_hour': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': 0.01}),
-            'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Phone Number'}),
+            'capacity': forms.NumberInput(attrs={'class': 'form-control w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 'min': 1}),
+            'price_per_hour': forms.NumberInput(attrs={'class': 'form-control w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 'min': 0, 'step': 0.01}),
+            'contact_number': forms.TextInput(attrs={'class': 'form-control w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 'placeholder': 'Contact Phone Number'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Contact Email'}),
         }
     
@@ -120,11 +120,27 @@ class VenueCateringPackageForm(forms.ModelForm):
         model = VenueCateringPackage
         fields = ['name', 'description', 'price', 'price_type', 'is_active']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Package Name'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Describe what is included in this package'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': 0.01}),
-            'price_type': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'per person, per plate, flat rate, etc.'}),
-            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'name': forms.TextInput(attrs={
+                'class': 'form-control w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 
+                'placeholder': 'Package Name'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 
+                'rows': 3, 
+                'placeholder': 'Describe what is included in this package'
+            }),
+            'price': forms.NumberInput(attrs={
+                'class': 'form-control w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 
+                'min': 0, 
+                'step': 0.01
+            }),
+            'price_type': forms.TextInput(attrs={
+                'class': 'form-control w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 
+                'placeholder': 'per person, per plate, flat rate, etc.'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'
+            }),
         }
 
 

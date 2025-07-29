@@ -8,3 +8,5 @@ admin name pass: superuser
 APP_PASSWORD for envents.operation@gmail.com: hwss ycrz zmqv drpj
 
 Aws console pass: @envents25leads
+
+Postgrest On Lightsail: DB Name: enventsdb   User: enventsuser   Pass: password

@@ -30,12 +30,10 @@ def venue_list(request):
     cities = [cities_map[city_lower] for city_lower in cities_set]
     cities.sort()  # Sort alphabetically for better UX
 
-    # Filter by categories
-    categories = request.GET.getlist('categories')
-    # Filter out empty strings
-    categories = [cat for cat in categories if cat]
-    if categories:
-        venues_queryset = venues_queryset.filter(category__id__in=categories).distinct()
+    # Filter by category (single selection)
+    category_id = request.GET.get('category')
+    if category_id:
+        venues_queryset = venues_queryset.filter(category__id=category_id)
     
     # Filter by capacity
     capacity = request.GET.get('capacity')

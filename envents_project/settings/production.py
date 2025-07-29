@@ -5,6 +5,8 @@ These settings are meant for production environments.
 """
 
 from .base import *
+from ..s3_storage import apply_s3_settings
+from django.core.exceptions import ImproperlyConfigured
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
@@ -13,24 +15,49 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', default=False)
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['13.233.196.42'])
 
-# WhiteNoise configuration for static file serving
-MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')  # Add WhiteNoise after SecurityMiddleware
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-WHITENOISE_MAX_AGE = 31536000 # 1 year
+# Always disable Tailwind dev mode in production
+TAILWIND_DEV_MODE = False
+
+# Storage Configuration - Always use S3 in production
+try:
+    print("Configuring S3 storage for production...")
+    apply_s3_settings(locals())
+    print("✅ S3 storage configured for production")
+except Exception as e:
+    raise ImproperlyConfigured(f"S3 storage configuration failed in production: {e}")
+
+# Remove WhiteNoise for static files in production since we're using S3
+if 'whitenoise.middleware.WhiteNoiseMiddleware' in MIDDLEWARE:
+    MIDDLEWARE.remove('whitenoise.middleware.WhiteNoiseMiddleware')
 
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': env('DB_ENGINE'),
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'envents',
+        'USER': 'postgres',
+        'PASSWORD': 'password',
+        'HOST': 'db',
+        'PORT': '5432',
     }
 }
+
+# Redis Cache Configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+# Session configuration - use Redis for sessions
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
 
 # Email Configuration
 EMAIL_BACKEND = env('EMAIL_BACKEND')
@@ -41,19 +68,6 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 
-# # MCP (Model Context Protocol) Configuration
-# MCP_CONFIG = {
-#     "mcpServers": {
-#         "postgres": {
-#             "command": "npx",
-#             "args": [
-#                 "-y",
-#                 "@modelcontextprotocol/server-postgres",
-#                 env('MCP_DATABASE_URL')
-#             ]
-#         }
-#     }
-# }
 
 # Security
 SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)

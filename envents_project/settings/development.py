@@ -2,27 +2,26 @@
 Development settings for envents_project project.
 
 These settings are meant for local development environments.
-For now, we import from the original settings.py file to ensure compatibility.
 """
 
-import sys
 import os
 from pathlib import Path
 
-# Import all settings from the original settings.py file
+# Import all settings from the base.py file
 from .base import *
-# Import original settings for compatibility during transition
-import sys
-import importlib.util
-spec = importlib.util.spec_from_file_location(
-    "original_settings", 
-    str(Path(__file__).resolve().parent.parent / "settings.py")
-)
-original_settings = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(original_settings)
+
+# Import unified S3 storage configuration
+from ..s3_storage import apply_s3_settings, get_fallback_settings
+import environ
+
+env = environ.Env()
+
+# Force S3 usage in development for consistency with production
+USE_S3_IN_DEV = env.bool('USE_S3_IN_DEV', default=True)
 
 # Override with development-specific settings
 DEBUG = True
+TAILWIND_DEV_MODE = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -49,16 +48,22 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
 
-# MCP (Model Context Protocol) Configuration
-MCP_CONFIG = {
-    "mcpServers": {
-        "postgres": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-postgres",
-                env('MCP_DATABASE_URL', default="postgresql://postgres:password@localhost:5432/envents")
-            ]
-        }
-    }
-}
+# Storage Configuration - Use S3 by default for consistency
+if USE_S3_IN_DEV:
+    try:
+        print("Configuring S3 storage for development...")
+        # Use unified S3 configuration
+        apply_s3_settings(locals())
+        print("✅ S3 storage enabled in development")
+        
+    except Exception as e:
+        print(f"❌ S3 configuration failed: {e}")
+        print("🔄 Falling back to local storage")
+        # Apply fallback settings
+        fallback_settings = get_fallback_settings()
+        locals().update(fallback_settings)
+        USE_S3_IN_DEV = False
+else:
+    print("📁 Using local storage in development")
+    fallback_settings = get_fallback_settings()
+    locals().update(fallback_settings)

@@ -9,7 +9,9 @@ import os
 import sys
 from pathlib import Path
 
-# Point to the original settings during transition
-# This makes sure the application works while we're setting up the new structure
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from envents_project.settings import *
+# Set DJANGO_SETTINGS_MODULE to production by default
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'envents_project.settings.production')
+
+# This file is intentionally left empty
+# Settings are loaded directly from development.py or production.py 
+# based on the DJANGO_SETTINGS_MODULE environment variable

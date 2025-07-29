@@ -13,6 +13,27 @@ from .models import (
 class VenuePhotoInline(admin.TabularInline):
     model = VenuePhoto
     extra = 1
+    fields = ('image', 'caption', 'is_primary')
+    
+    def save_model(self, request, obj, form, change):
+        """Override to add debugging for inline saves"""
+        print(f"VenuePhotoInline.save_model called for {obj}")
+        if hasattr(obj, 'image') and obj.image:
+            print(f"Image field: {obj.image.name}")
+        super().save_model(request, obj, form, change)
+    
+    def save_formset(self, request, form, formset, change):
+        """Override to ensure inline forms are saved properly"""
+        print(f"VenuePhotoInline.save_formset called")
+        instances = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for instance in instances:
+            print(f"Saving VenuePhoto instance: {instance}")
+            if hasattr(instance, 'image') and instance.image:
+                print(f"Image to save: {instance.image.name}")
+            instance.save()
+        formset.save_m2m()
 
 class DisabledDateInline(admin.TabularInline):
     model = DisabledDate
@@ -39,6 +60,29 @@ class VenueAdmin(admin.ModelAdmin):
     filter_horizontal = ('amenities', 'category')
     list_editable = ('status', 'is_featured')
     actions = ['approve_venues', 'reject_venues', 'feature_venues', 'unfeature_venues']
+    
+    def save_formset(self, request, form, formset, change):
+        """
+        Override to ensure inline forms are saved properly, especially VenuePhoto
+        """
+        print(f"VenueAdmin.save_formset called for model: {formset.model.__name__}")
+        
+        # Special handling for VenuePhoto formset
+        if formset.model == VenuePhoto:
+            instances = formset.save(commit=False)
+            for obj in formset.deleted_objects:
+                print(f"Deleting VenuePhoto: {obj}")
+                obj.delete()
+            for instance in instances:
+                print(f"Processing VenuePhoto instance in VenueAdmin: {instance}")
+                if hasattr(instance, 'image') and instance.image:
+                    print(f"Image file: {instance.image.name}, size: {instance.image.size}")
+                instance.save()
+                print(f"VenuePhoto saved with ID: {instance.id}")
+            formset.save_m2m()
+        else:
+            # For other inline models, use default behavior
+            super().save_formset(request, form, formset, change)
     
     def get_categories(self, obj):
         return ", ".join([cat.name for cat in obj.category.all()])
