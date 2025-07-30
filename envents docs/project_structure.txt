@@ -1,5 +1,0 @@
-Venue owners should be able to create their own packages for catering services. If a user selects the venue's own catering packages for catering, the user will not be allowed to choose catering from the services. 
-
-Given the current flow of our current project, how should we implement this? Where should we display this? Is their any way we can integrate this within the service? Should we extend the ServicePackage Model or is there a better way? 
-
-Give me the plan and your chain of thought to implement this. Take approval before editing any file
