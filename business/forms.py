@@ -28,7 +28,7 @@ class VenueSubmissionForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Venue Name'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'General Location (e.g., Downtown)'}),
+            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'General Location'}),
             'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'capacity': forms.NumberInput(attrs={'class': 'form-control w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 'min': 1}),

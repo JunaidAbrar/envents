@@ -9,4 +9,5 @@ APP_PASSWORD for envents.operation@gmail.com: hwss ycrz zmqv drpj
 
 Aws console pass: @envents25leads
 
-Postgrest On Lightsail: DB Name: enventsdb   User: enventsuser   Pass: password
+Database: NeonDB (fully managed PostgreSQL)
+Connection details in .env file
