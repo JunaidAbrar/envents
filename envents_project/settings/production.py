@@ -15,8 +15,8 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', default=False)
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['13.233.196.42'])
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=['https://envents-production.up.railway.app', 'http://localhost:8000'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['13.233.196.42', 'https://enventsbd.com/'])
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=['https://envents-production.up.railway.app', 'https://enventsbd.com/'])
 
 # Always disable Tailwind dev mode in production
 TAILWIND_DEV_MODE = False
