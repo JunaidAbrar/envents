@@ -3,11 +3,12 @@ Production settings for envents_project project.
 
 These settings are meant for production environments.
 """
-
+import environ
 from .base import *
 from ..s3_storage import apply_s3_settings
 from django.core.exceptions import ImproperlyConfigured
-
+#Initialize environ
+env = environ.Env()
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
@@ -15,8 +16,8 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', default=False)
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['13.233.196.42', 'https://enventsbd.com/'])
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=['https://envents-production.up.railway.app', 'https://enventsbd.com/'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['enventsbd.com', 'envents-production.up.railway.app'])
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=['https://enventsbd.com', 'https://envents-production.up.railway.app'])
 
 # Always disable Tailwind dev mode in production
 TAILWIND_DEV_MODE = False
