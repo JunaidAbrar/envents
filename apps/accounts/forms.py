@@ -73,9 +73,25 @@ class UserProfileForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email', 'phone_number', 'profile_picture', 'bio']
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
-            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'first_name': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition duration-200',
+                'placeholder': 'Your first name'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition duration-200',
+                'placeholder': 'Your last name'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition duration-200',
+                'placeholder': 'Your email address'
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition duration-200',
+                'placeholder': 'Your phone number'
+            }),
+            'bio': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition duration-200',
+                'rows': 4,
+                'placeholder': 'Tell us about yourself...'
+            }),
         }

@@ -4,25 +4,38 @@
 {% block title %}Edit Profile | Envents{% endblock %}
 
 {% block content %}
-<div class="container mx-auto py-8">
-    <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-bold mb-6">Edit Profile</h2>
+<div class="container mx-auto py-10">
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800">Edit Profile</h2>
+            <p class="text-gray-500 mt-2">Update your personal information</p>
+        </div>
         
-        <form method="post" enctype="multipart/form-data" class="space-y-4">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
             
             {% if form.errors %}
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    <p>Please correct the errors below.</p>
+                <div class="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-md mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium">Please correct the errors below:</p>
+                            <div class="mt-1 text-sm">{{ form.errors }}</div>
+                        </div>
+                    </div>
                 </div>
             {% endif %}
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="space-y-2">
                     <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">First Name</label>
                     {{ form.first_name }}
                     {% if form.first_name.errors %}
-                        <p class="text-red-600 text-xs italic">{{ form.first_name.errors.0 }}</p>
+                        <p class="text-red-600 text-xs italic mt-1">{{ form.first_name.errors.0 }}</p>
                     {% endif %}
                 </div>
                 
@@ -30,7 +43,7 @@
                     <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">Last Name</label>
                     {{ form.last_name }}
                     {% if form.last_name.errors %}
-                        <p class="text-red-600 text-xs italic">{{ form.last_name.errors.0 }}</p>
+                        <p class="text-red-600 text-xs italic mt-1">{{ form.last_name.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -39,7 +52,7 @@
                 <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">Email Address</label>
                 {{ form.email }}
                 {% if form.email.errors %}
-                    <p class="text-red-600 text-xs italic">{{ form.email.errors.0 }}</p>
+                    <p class="text-red-600 text-xs italic mt-1">{{ form.email.errors.0 }}</p>
                 {% endif %}
             </div>
             
@@ -47,7 +60,7 @@
                 <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700">Phone Number</label>
                 {{ form.phone_number }}
                 {% if form.phone_number.errors %}
-                    <p class="text-red-600 text-xs italic">{{ form.phone_number.errors.0 }}</p>
+                    <p class="text-red-600 text-xs italic mt-1">{{ form.phone_number.errors.0 }}</p>
                 {% endif %}
             </div>
             
@@ -55,13 +68,13 @@
                 <label for="{{ form.profile_picture.id_for_label }}" class="block text-sm font-medium text-gray-700">Profile Picture</label>
                 {% if user.profile_picture %}
                     <div class="flex items-center space-x-4 mb-2">
-                        <img src="{{ user.profile_picture.url }}" alt="Current profile picture" class="h-16 w-16 object-cover rounded-full">
+                        <img src="{{ user.profile_picture.url }}" alt="Current profile picture" class="h-20 w-20 object-cover rounded-full border-2 border-indigo-100 shadow-sm">
                         <p class="text-sm text-gray-600">Current profile picture</p>
                     </div>
                 {% endif %}
-                {{ form.profile_picture }}
+                <input type="file" name="profile_picture" accept="image/*" id="id_profile_picture" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition duration-200">
                 {% if form.profile_picture.errors %}
-                    <p class="text-red-600 text-xs italic">{{ form.profile_picture.errors.0 }}</p>
+                    <p class="text-red-600 text-xs italic mt-1">{{ form.profile_picture.errors.0 }}</p>
                 {% endif %}
             </div>
             
@@ -69,13 +82,13 @@
                 <label for="{{ form.bio.id_for_label }}" class="block text-sm font-medium text-gray-700">Bio</label>
                 {{ form.bio }}
                 {% if form.bio.errors %}
-                    <p class="text-red-600 text-xs italic">{{ form.bio.errors.0 }}</p>
+                    <p class="text-red-600 text-xs italic mt-1">{{ form.bio.errors.0 }}</p>
                 {% endif %}
             </div>
             
-            <div class="pt-4 flex items-center justify-between">
-                <a href="{% url 'accounts:profile' %}" class="text-indigo-600 hover:underline">Cancel</a>
-                <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <div class="pt-6 flex items-center justify-between">
+                <a href="{% url 'accounts:profile' %}" class="text-indigo-600 hover:text-indigo-800 font-medium transition duration-200">Cancel</a>
+                <button type="submit" class="bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 font-medium shadow-md">
                     Save Changes
                 </button>
             </div>
