@@ -21,20 +21,42 @@ def service_list(request):
         category = get_object_or_404(ServiceCategory, slug=category_slug)
         services = services.filter(category=category)
     
-    # Filter by price range
+    # Filter by price range (handles both hourly and flat pricing)
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
     if min_price:
-        services = services.filter(base_price__gte=min_price)
+        from django.db.models import Q
+        services = services.filter(
+            Q(pricing_type='HOURLY', hourly_price__gte=min_price) |
+            Q(pricing_type='FLAT', flat_price__gte=min_price)
+        )
     if max_price:
-        services = services.filter(base_price__lte=max_price)
+        from django.db.models import Q
+        services = services.filter(
+            Q(pricing_type='HOURLY', hourly_price__lte=max_price) |
+            Q(pricing_type='FLAT', flat_price__lte=max_price)
+        )
     
-    # Sorting
+    # Sorting (handles both hourly and flat pricing)
     sort = request.GET.get('sort', 'name')
     if sort == 'price_asc':
-        services = services.order_by('base_price')
+        from django.db.models import Case, When, F
+        services = services.annotate(
+            effective_price=Case(
+                When(pricing_type='HOURLY', then=F('hourly_price')),
+                When(pricing_type='FLAT', then=F('flat_price')),
+                default=F('hourly_price')
+            )
+        ).order_by('effective_price')
     elif sort == 'price_desc':
-        services = services.order_by('-base_price')
+        from django.db.models import Case, When, F
+        services = services.annotate(
+            effective_price=Case(
+                When(pricing_type='HOURLY', then=F('hourly_price')),
+                When(pricing_type='FLAT', then=F('flat_price')),
+                default=F('hourly_price')
+            )
+        ).order_by('-effective_price')
     elif sort == 'rating':
         services = services.annotate(avg_rating=Avg('reviews__rating')).order_by('-avg_rating')
     else:

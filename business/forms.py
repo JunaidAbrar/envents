@@ -23,7 +23,8 @@ class VenueSubmissionForm(forms.ModelForm):
         model = Venue
         fields = [
             'name', 'description', 'categories', 'location', 'city', 
-            'address', 'capacity', 'price_per_hour', 'contact_number', 'email', 'amenities'
+            'address', 'capacity', 'pricing_type', 'hourly_price', 'flat_price', 
+            'contact_number', 'email', 'amenities'
         ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Venue Name'}),
@@ -32,7 +33,9 @@ class VenueSubmissionForm(forms.ModelForm):
             'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'capacity': forms.NumberInput(attrs={'class': 'form-control w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 'min': 1}),
-            'price_per_hour': forms.NumberInput(attrs={'class': 'form-control w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 'min': 0, 'step': 0.01}),
+            'pricing_type': forms.Select(attrs={'class': 'form-control w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 'id': 'id_pricing_type_venue'}),
+            'hourly_price': forms.NumberInput(attrs={'class': 'form-control w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 'id': 'id_hourly_price_venue', 'min': 0, 'step': '0.01'}),
+            'flat_price': forms.NumberInput(attrs={'class': 'form-control w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 'id': 'id_flat_price_venue', 'min': 0, 'step': '0.01'}),
             'contact_number': forms.TextInput(attrs={'class': 'form-control w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 'placeholder': 'Contact Phone Number'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Contact Email'}),
         }
@@ -41,6 +44,26 @@ class VenueSubmissionForm(forms.ModelForm):
         self.owner = kwargs.pop('owner', None)
         super().__init__(*args, **kwargs)
         # No need for initializing category field as we're using categories field now
+    
+    def clean(self):
+        """Validate pricing fields based on pricing_type"""
+        cleaned_data = super().clean()
+        pricing_type = cleaned_data.get('pricing_type')
+        hourly_price = cleaned_data.get('hourly_price')
+        flat_price = cleaned_data.get('flat_price')
+        
+        if pricing_type == 'HOURLY':
+            if not hourly_price or hourly_price <= 0:
+                raise forms.ValidationError("Hourly price is required and must be greater than 0 for hourly pricing.")
+            # Clear the unused field
+            cleaned_data['flat_price'] = None
+        elif pricing_type == 'FLAT':
+            if not flat_price or flat_price <= 0:
+                raise forms.ValidationError("Flat price is required and must be greater than 0 for flat rate pricing.")
+            # Clear the unused field
+            cleaned_data['hourly_price'] = None
+        
+        return cleaned_data
     
     def save(self, commit=True):
         venue = super().save(commit=False)
@@ -62,14 +85,16 @@ class ServiceSubmissionForm(forms.ModelForm):
     class Meta:
         model = Service
         fields = [
-            'name', 'description', 'category', 'base_price', 'price_type', 'contact_number', 'email'
+            'name', 'description', 'category', 'pricing_type', 'hourly_price', 'flat_price', 
+            'contact_number', 'email'
         ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Service Name'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'category': forms.Select(attrs={'class': 'form-control'}),
-            'base_price': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': 0.01}),
-            'price_type': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Per hour, flat rate, etc.'}),
+            'pricing_type': forms.Select(attrs={'class': 'form-control w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500', 'id': 'id_pricing_type_service'}),
+            'hourly_price': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_hourly_price_service', 'min': 0, 'step': '0.01'}),
+            'flat_price': forms.NumberInput(attrs={'class': 'form-control', 'id': 'id_flat_price_service', 'min': 0, 'step': '0.01'}),
             'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Phone Number'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Contact Email'}),
         }
@@ -79,6 +104,26 @@ class ServiceSubmissionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['category'].queryset = ServiceCategory.objects.all()
         self.fields['category'].empty_label = "Select a category"
+    
+    def clean(self):
+        """Validate pricing fields based on pricing_type"""
+        cleaned_data = super().clean()
+        pricing_type = cleaned_data.get('pricing_type')
+        hourly_price = cleaned_data.get('hourly_price')
+        flat_price = cleaned_data.get('flat_price')
+        
+        if pricing_type == 'HOURLY':
+            if not hourly_price or hourly_price <= 0:
+                raise forms.ValidationError("Hourly price is required and must be greater than 0 for hourly pricing.")
+            # Clear the unused field
+            cleaned_data['flat_price'] = None
+        elif pricing_type == 'FLAT':
+            if not flat_price or flat_price <= 0:
+                raise forms.ValidationError("Flat price is required and must be greater than 0 for flat rate pricing.")
+            # Clear the unused field
+            cleaned_data['hourly_price'] = None
+        
+        return cleaned_data
     
     def save(self, commit=True):
         service = super().save(commit=False)

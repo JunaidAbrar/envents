@@ -203,41 +203,65 @@
                     <h2 class="text-xl font-semibold text-gray-800">Pricing Information</h2>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <label for="{{ service_form.base_price.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                            Base Price <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 sm:text-sm">৳</span>
-                            </div>
-                            {{ service_form.base_price }}
+                <!-- Pricing Type Selection -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <label for="{{ service_form.pricing_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Pricing Type <span class="text-red-500">*</span>
+                    </label>
+                    {{ service_form.pricing_type }}
+                    {% if service_form.pricing_type.errors %}
+                        <p class="mt-1 text-sm text-red-600 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            {{ service_form.pricing_type.errors.0 }}
+                        </p>
+                    {% endif %}
+                    <p class="mt-2 text-xs text-gray-500">Choose between hourly rate or flat rate pricing.</p>
+                </div>
+                
+                <!-- Hourly Price (shown only when HOURLY selected) -->
+                <div id="hourly-price-container-service" class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <label for="id_hourly_price_service" class="block text-sm font-medium text-gray-700 mb-1">
+                        Hourly Price <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">৳</span>
                         </div>
-                        {% if service_form.base_price.errors %}
-                            <p class="mt-1 text-sm text-red-600 flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                </svg>
-                                {{ service_form.base_price.errors.0 }}
-                            </p>
-                        {% endif %}
+                        {{ service_form.hourly_price }}
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <label for="{{ service_form.price_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                            Price Type <span class="text-red-500">*</span>
-                        </label>
-                        {{ service_form.price_type }}
-                        {% if service_form.price_type.errors %}
-                            <p class="mt-1 text-sm text-red-600 flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                </svg>
-                                {{ service_form.price_type.errors.0 }}
-                            </p>
-                        {% endif %}
-                        <p class="mt-2 text-xs text-gray-500">E.g., "Per hour", "Flat rate", "Per person", etc.</p>
+                    {% if service_form.hourly_price.errors %}
+                        <p class="mt-1 text-sm text-red-600 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            {{ service_form.hourly_price.errors.0 }}
+                        </p>
+                    {% endif %}
+                    <p class="mt-2 text-xs text-gray-500">Price charged per hour of service.</p>
+                </div>
+                
+                <!-- Flat Price (shown only when FLAT selected) -->
+                <div id="flat-price-container-service" class="bg-gray-50 p-4 rounded-lg mb-4" style="display: none;">
+                    <label for="id_flat_price_service" class="block text-sm font-medium text-gray-700 mb-1">
+                        Flat Rate <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">৳</span>
+                        </div>
+                        {{ service_form.flat_price }}
                     </div>
+                    {% if service_form.flat_price.errors %}
+                        <p class="mt-1 text-sm text-red-600 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            {{ service_form.flat_price.errors.0 }}
+                        </p>
+                    {% endif %}
+                    <p class="mt-2 text-xs text-gray-500">Fixed price for the service (e.g., per event, per person, etc.).</p>
                 </div>
             </div>
             
@@ -330,6 +354,29 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Toggle price inputs based on pricing type selection for services
+        const pricingTypeSelect = document.getElementById('id_pricing_type_service');
+        const hourlyContainer = document.getElementById('hourly-price-container-service');
+        const flatContainer = document.getElementById('flat-price-container-service');
+        
+        function updatePriceDisplay() {
+            const selectedType = pricingTypeSelect.value;
+            if (selectedType === 'HOURLY') {
+                hourlyContainer.style.display = 'block';
+                flatContainer.style.display = 'none';
+            } else if (selectedType === 'FLAT') {
+                hourlyContainer.style.display = 'none';
+                flatContainer.style.display = 'block';
+            } else {
+                // No selection, hide both
+                hourlyContainer.style.display = 'none';
+                flatContainer.style.display = 'none';
+            }
+        }
+        
+        pricingTypeSelect.addEventListener('change', updatePriceDisplay);
+        updatePriceDisplay(); // Initial state
+        
         // Setup for primary photo radio button behavior
         const primaryCheckboxes = document.querySelectorAll('input[name$="-is_primary"]');
         primaryCheckboxes.forEach(function(checkbox) {
@@ -350,7 +397,7 @@
             if (!control.classList.contains('form-control')) {
                 control.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-200', 'focus:ring-opacity-50');
                 
-                if (control.type === 'number' && control.id === '{{ service_form.base_price.id_for_label }}') {
+                if (control.type === 'number' && control.id.includes('price')) {
                     control.classList.add('pl-7');
                 }
             }

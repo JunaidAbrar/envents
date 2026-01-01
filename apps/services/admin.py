@@ -25,14 +25,38 @@ class ServicePackageInline(admin.TabularInline):
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'provider', 'base_price', 'price_type', 'contact_number', 'email', 'status', 'is_featured')
-    list_filter = ('status', 'is_featured', 'category', 'price_type')
+    list_display = ('name', 'category', 'provider', 'formatted_price', 'contact_number', 'email', 'status', 'is_featured')
+    list_filter = ('status', 'is_featured', 'category', 'pricing_type')
     search_fields = ('name', 'description', 'provider__username', 'provider__business_name')
     prepopulated_fields = {'slug': ('name',)}
     inlines = [ServicePhotoInline, ServiceReviewInline, ServicePackageInline]
     list_editable = ('status', 'is_featured')
     raw_id_fields = ('provider',)
     actions = ['approve_services', 'reject_services', 'feature_services', 'unfeature_services']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'slug', 'description', 'category', 'provider')
+        }),
+        ('Pricing', {
+            'fields': ('pricing_type', 'hourly_price', 'flat_price'),
+            'classes': ('pricing-section',),
+        }),
+        ('Contact Information', {
+            'fields': ('contact_number', 'email')
+        }),
+        ('Status', {
+            'fields': ('status', 'is_featured')
+        }),
+    )
+    
+    class Media:
+        js = ('admin/js/service_pricing.js',)
+    
+    def formatted_price(self, obj):
+        """Display formatted price in admin list"""
+        return obj.display_price
+    formatted_price.short_description = 'Price'
     
     def approve_services(self, request, queryset):
         queryset.update(status='approved')

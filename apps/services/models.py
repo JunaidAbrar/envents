@@ -32,8 +32,16 @@ class Service(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField()
     category = models.ForeignKey(ServiceCategory, on_delete=models.CASCADE, related_name='services')
-    base_price = models.DecimalField(max_digits=10, decimal_places=2)
-    price_type = models.CharField(max_length=50, help_text="Per hour, flat rate, etc.")
+    
+    # Dynamic pricing fields - unified structure with venues
+    PRICING_TYPE_CHOICES = [
+        ('HOURLY', 'Hourly Rate'),
+        ('FLAT', 'Flat Rate'),
+    ]
+    pricing_type = models.CharField(max_length=10, choices=PRICING_TYPE_CHOICES, default='HOURLY')
+    hourly_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Price per hour")
+    flat_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Flat rate price")
+    
     contact_number = models.CharField(max_length=20, blank=True, help_text="Contact phone number for this service")
     email = models.EmailField(blank=True, help_text="Contact email for this service")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
@@ -71,6 +79,27 @@ class Service(models.Model):
     @property
     def main_photo(self):
         return self.photos.filter(is_primary=True).first() or self.photos.first()
+    
+    @property
+    def display_price(self):
+        """Unified price display for templates"""
+        if self.pricing_type == 'HOURLY':
+            return f"৳{self.hourly_price} / hour"
+        else:
+            return f"৳{self.flat_price} flat"
+    
+    def get_effective_price(self):
+        """Returns the active price based on pricing_type"""
+        return self.hourly_price if self.pricing_type == 'HOURLY' else self.flat_price
+    
+    def calculate_cost(self, quantity):
+        """Calculate cost based on quantity and pricing type.
+        For HOURLY services, quantity typically represents hours/duration.
+        For FLAT services, returns flat_price regardless of quantity."""
+        if self.pricing_type == 'HOURLY':
+            return self.hourly_price * quantity
+        else:
+            return self.flat_price
 
 class ServicePhoto(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='photos')

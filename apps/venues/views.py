@@ -42,14 +42,24 @@ def venue_list(request):
     elif capacity == '1000+':
         venues_queryset = venues_queryset.filter(capacity__gte=1000)
     
-    # Filter by price range
+    # Filter by price range (handles both hourly and flat pricing)
     min_price = request.GET.get('min_price')
     if min_price:
-        venues_queryset = venues_queryset.filter(price_per_hour__gte=min_price)
+        from django.db.models import Q
+        # Filter venues where either hourly_price OR flat_price meets the minimum
+        venues_queryset = venues_queryset.filter(
+            Q(pricing_type='HOURLY', hourly_price__gte=min_price) |
+            Q(pricing_type='FLAT', flat_price__gte=min_price)
+        )
     
     max_price = request.GET.get('max_price')
     if max_price:
-        venues_queryset = venues_queryset.filter(price_per_hour__lte=max_price)
+        from django.db.models import Q
+        # Filter venues where either hourly_price OR flat_price meets the maximum
+        venues_queryset = venues_queryset.filter(
+            Q(pricing_type='HOURLY', hourly_price__lte=max_price) |
+            Q(pricing_type='FLAT', flat_price__lte=max_price)
+        )
     
     # Filter by city
     city = request.GET.get('city')
@@ -65,12 +75,27 @@ def venue_list(request):
         amenities_int = [int(a) for a in amenities]
         venues_queryset = venues_queryset.filter(amenities__id__in=amenities_int).distinct()
     
-    # Sorting
+    # Sorting (handles both hourly and flat pricing)
     sort = request.GET.get('sort', 'name')
     if sort == 'price_low' or sort == 'price_asc':
-        venues_queryset = venues_queryset.order_by('price_per_hour')
+        # Sort by effective price (hourly_price for HOURLY, flat_price for FLAT)
+        from django.db.models import Case, When, F
+        venues_queryset = venues_queryset.annotate(
+            effective_price=Case(
+                When(pricing_type='HOURLY', then=F('hourly_price')),
+                When(pricing_type='FLAT', then=F('flat_price')),
+                default=F('hourly_price')
+            )
+        ).order_by('effective_price')
     elif sort == 'price_high' or sort == 'price_desc':
-        venues_queryset = venues_queryset.order_by('-price_per_hour')
+        from django.db.models import Case, When, F
+        venues_queryset = venues_queryset.annotate(
+            effective_price=Case(
+                When(pricing_type='HOURLY', then=F('hourly_price')),
+                When(pricing_type='FLAT', then=F('flat_price')),
+                default=F('hourly_price')
+            )
+        ).order_by('-effective_price')
     elif sort == 'capacity':
         venues_queryset = venues_queryset.order_by('-capacity')
     elif sort == 'rating':

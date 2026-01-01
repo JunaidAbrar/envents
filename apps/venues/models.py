@@ -47,7 +47,16 @@ class Venue(models.Model):
     city = models.CharField(max_length=100, db_index=True)
     address = models.TextField()
     capacity = models.PositiveIntegerField(help_text="Maximum number of guests")
-    price_per_hour = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # Dynamic pricing fields - unified structure with services
+    PRICING_TYPE_CHOICES = [
+        ('HOURLY', 'Hourly Rate'),
+        ('FLAT', 'Flat Rate'),
+    ]
+    pricing_type = models.CharField(max_length=10, choices=PRICING_TYPE_CHOICES, default='HOURLY')
+    hourly_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Price per hour")
+    flat_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Flat rate price")
+    
     contact_number = models.CharField(max_length=20, blank=True, help_text="Contact phone number for this venue")
     email = models.EmailField(blank=True, help_text="Contact email for this venue")
     amenities = models.ManyToManyField(Amenity, related_name='venues', blank=True)
@@ -85,6 +94,27 @@ class Venue(models.Model):
     @property
     def main_photo(self):
         return self.photos.filter(is_primary=True).first() or self.photos.first()
+    
+    @property
+    def display_price(self):
+        """Unified price display for templates"""
+        if self.pricing_type == 'HOURLY':
+            return f"৳{self.hourly_price} / hour"
+        else:
+            return f"৳{self.flat_price} flat"
+    
+    def get_effective_price(self):
+        """Returns the active price based on pricing_type"""
+        return self.hourly_price if self.pricing_type == 'HOURLY' else self.flat_price
+    
+    def calculate_cost(self, hours):
+        """Calculate cost based on duration and pricing type.
+        For HOURLY: returns hourly_price * hours
+        For FLAT: returns flat_price (duration doesn't affect cost)"""
+        if self.pricing_type == 'HOURLY':
+            return self.hourly_price * hours
+        else:
+            return self.flat_price
 
 class VenuePhoto(models.Model):
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='photos')

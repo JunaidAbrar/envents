@@ -321,7 +321,7 @@
                                 <div class="absolute top-2 right-2 flex space-x-2">
                                     <div class="venue-compare-checkbox bg-white bg-opacity-75 hover:bg-opacity-100 p-2 rounded-full shadow-sm cursor-pointer">
                                         <input type="checkbox" id="compare-{{ venue.id }}" class="compare-checkbox sr-only" data-venue-id="{{ venue.id }}" 
-                                               data-venue-name="{{ venue.name }}" data-venue-price="{{ venue.price_per_hour }}" 
+                                               data-venue-name="{{ venue.name }}" data-venue-price="{{ venue.get_effective_price }}" 
                                                data-venue-capacity="{{ venue.capacity }}" data-venue-city="{{ venue.city }}" 
                                                data-venue-rating="{{ venue.average_rating|floatformat:1 }}" data-venue-slug="{{ venue.slug }}">
                                         <label for="compare-{{ venue.id }}" class="cursor-pointer" title="Select to compare">
@@ -339,8 +339,7 @@
                                         <p class="text-gray-600 text-sm">{{ venue.city }}</p>
                                     </div>
                                     <div class="text-right">
-                                        <p class="text-gray-800 font-semibold">৳{{ venue.price_per_hour }}</p>
-                                        <p class="text-gray-600 text-xs">per hour</p>
+                                        <p class="text-gray-800 font-semibold">{{ venue.display_price }}</p>
                                     </div>
                                 </div>
                                 

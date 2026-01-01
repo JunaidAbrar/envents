@@ -52,14 +52,41 @@ class VenueCateringPackageInline(admin.TabularInline):
 
 @admin.register(Venue)
 class VenueAdmin(admin.ModelAdmin):
-    list_display = ('name', 'get_categories', 'city', 'capacity', 'price_per_hour', 'contact_number', 'email', 'status', 'is_featured')
-    list_filter = ('status', 'is_featured', 'city', 'category')
+    list_display = ('name', 'get_categories', 'city', 'capacity', 'formatted_price', 'contact_number', 'email', 'status', 'is_featured')
+    list_filter = ('status', 'is_featured', 'city', 'category', 'pricing_type')
     search_fields = ('name', 'description', 'address', 'city')
     prepopulated_fields = {'slug': ('name',)}
     inlines = [VenuePhotoInline, DisabledDateInline, VenueReviewInline, VenueCateringPackageInline]
     filter_horizontal = ('amenities', 'category')
     list_editable = ('status', 'is_featured')
     actions = ['approve_venues', 'reject_venues', 'feature_venues', 'unfeature_venues']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'slug', 'description', 'category', 'owner')
+        }),
+        ('Location', {
+            'fields': ('location', 'city', 'address')
+        }),
+        ('Capacity & Pricing', {
+            'fields': ('capacity', 'pricing_type', 'hourly_price', 'flat_price'),
+            'classes': ('pricing-section',),
+        }),
+        ('Contact Information', {
+            'fields': ('contact_number', 'email')
+        }),
+        ('Features & Status', {
+            'fields': ('amenities', 'status', 'is_featured')
+        }),
+    )
+    
+    class Media:
+        js = ('admin/js/venue_pricing.js',)
+    
+    def formatted_price(self, obj):
+        """Display formatted price in admin list"""
+        return obj.display_price
+    formatted_price.short_description = 'Price'
     
     def save_formset(self, request, form, formset, change):
         """

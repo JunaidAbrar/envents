@@ -87,7 +87,9 @@ def create_booking(request, venue_slug):
                 hours_diff = booking.end_time.hour - booking.start_time.hour
                 minutes_diff = booking.end_time.minute - booking.start_time.minute
                 time_fraction = Decimal(hours_diff + (minutes_diff / 60))
-                booking.venue_cost = venue.price_per_hour * time_fraction
+                
+                # Use venue's calculate_cost method for dynamic pricing (HOURLY or FLAT)
+                booking.venue_cost = venue.calculate_cost(time_fraction)
                 booking.services_cost = 0  # Initialize services cost
                 
                 # Handle venue catering package selection
@@ -163,7 +165,9 @@ def add_services(request, booking_id):
                     pass  # If no catering category exists, allow all services
             
             package = None
-            price = service.base_price
+            # Use service's calculate_cost method for dynamic pricing
+            # For services without packages, quantity defaults to 1
+            price = service.calculate_cost(quantity)
             
             # Check if a package was selected
             if package_id:
@@ -306,9 +310,10 @@ def create_service_booking(request):
                     try:
                         service = Service.objects.prefetch_related('packages').get(id=service_id, status='approved')
                         
-                        # Determine price based on package or base price
+                        # Determine price based on package or service's calculate_cost method
                         package = None
-                        price = service.base_price
+                        # Use service's calculate_cost method for dynamic pricing; default quantity=1
+                        price = service.calculate_cost(1)
                         
                         if package_id:
                             try:
