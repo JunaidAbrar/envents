@@ -38,14 +38,15 @@ if 'whitenoise.middleware.WhiteNoiseMiddleware' in MIDDLEWARE:
 DATABASES = {
     'default': {
         'ENGINE': env('DB_ENGINE', default='django.db.backends.postgresql'),
-        'NAME': env('DB_NAME', default='envents'),
-        'USER': env('DB_USER', default='postgres'),
-        'PASSWORD': env('DB_PASSWORD', default='password'),
-        'HOST': env('DB_HOST', default='db'),
-        'PORT': env('DB_PORT', default='5432'),
-        'OPTIONS': env.json('DB_OPTIONS', default={}),
+        'NAME': env('DB_NAME'),         # no default
+        'USER': env('DB_USER'),         # no default
+        'PASSWORD': env('DB_PASSWORD'), # no default
+        'HOST': env('DB_HOST'),         # no default (prevents falling back to "db")
+        'PORT': env.int('DB_PORT', default=5432),
+        'OPTIONS': env.json('DB_OPTIONS', default={"sslmode": "require"}),
     }
 }
+
 
 
 # Session configuration - use database-backed sessions
@@ -62,7 +63,9 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 
 
 # Security
-SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
 SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=True)
 CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=True)
 SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=31536000)  # 1 year
