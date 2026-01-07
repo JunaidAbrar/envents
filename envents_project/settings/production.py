@@ -34,18 +34,26 @@ except Exception as e:
 if 'whitenoise.middleware.WhiteNoiseMiddleware' in MIDDLEWARE:
     MIDDLEWARE.remove('whitenoise.middleware.WhiteNoiseMiddleware')
 
-# Database
+# Database - Railway + Neon (DATABASE_URL required)
+# Fail fast if DATABASE_URL is missing
+if not env.str('DATABASE_URL', default=''):
+    raise ImproperlyConfigured(
+        "DATABASE_URL is required in production. "
+        "Please set DATABASE_URL environment variable with your Neon connection string. "
+        "Example: postgresql://user:password@host:5432/dbname?sslmode=require"
+    )
+
 DATABASES = {
-    'default': {
-        'ENGINE': env('DB_ENGINE', default='django.db.backends.postgresql'),
-        'NAME': env('DB_NAME'),         # no default
-        'USER': env('DB_USER'),         # no default
-        'PASSWORD': env('DB_PASSWORD'), # no default
-        'HOST': env('DB_HOST'),         # no default (prevents falling back to "db")
-        'PORT': env.int('DB_PORT', default=5432),
-        'OPTIONS': env.json('DB_OPTIONS', default={"sslmode": "require"}),
-    }
+    "default": env.db("DATABASE_URL")
 }
+
+# Ensure SSL is enforced for Neon Postgres
+# (DATABASE_URL should already include sslmode=require, but ensure it's set)
+if 'OPTIONS' not in DATABASES['default']:
+    DATABASES['default']['OPTIONS'] = {}
+if 'sslmode' not in DATABASES['default']['OPTIONS']:
+    DATABASES['default']['OPTIONS']['sslmode'] = 'require'
+
 
 
 
@@ -65,10 +73,16 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 # Security
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)
 
 SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=True)
 CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=True)
-SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=31536000)  # 1 year
+
+# SECURE_HSTS_SECONDS - Robust handling for Railway
+# Allow env values like "False", "0", "off", "no" without crashing
+_raw_hsts = env.str('SECURE_HSTS_SECONDS', default='31536000').strip()
+SECURE_HSTS_SECONDS = 0 if _raw_hsts.lower() in ('false', '0', 'off', 'no') else int(_raw_hsts)
+
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=True)
 SECURE_HSTS_PRELOAD = env.bool('SECURE_HSTS_PRELOAD', default=True)
 SECURE_CONTENT_TYPE_NOSNIFF = True
