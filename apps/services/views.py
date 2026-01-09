@@ -8,11 +8,9 @@ from .forms import ServiceReviewForm
 
 def service_list(request):
     """Display list of services with filtering options"""
-    # Use prefetch_related to avoid N+1 queries
-    services = Service.objects.filter(status='approved').select_related('category', 'provider').prefetch_related('photos').annotate(
-        avg_rating=Avg('reviews__rating'),
-        review_count=Count('reviews')
-    )
+    # Start with base queryset - NO annotations yet (performance optimization)
+    # Annotations are expensive, so we apply them AFTER filtering to reduce rows
+    services = Service.objects.filter(status='approved').select_related('category', 'provider').prefetch_related('photos')
     categories = ServiceCategory.objects.all()
     
     # Filter by category
@@ -37,6 +35,14 @@ def service_list(request):
             Q(pricing_type='FLAT', flat_price__lte=max_price)
         )
     
+    # ⚡ PERFORMANCE OPTIMIZATION: Apply annotations AFTER filtering
+    # This way we only calculate avg_rating and review_count for filtered results
+    # Instead of ALL services, then filtering (which wastes CPU on filtered-out rows)
+    services = services.annotate(
+        avg_rating=Avg('reviews__rating'),
+        review_count=Count('reviews')
+    )
+    
     # Sorting (handles both hourly and flat pricing)
     sort = request.GET.get('sort', 'name')
     if sort == 'price_asc':
@@ -58,7 +64,7 @@ def service_list(request):
             )
         ).order_by('-effective_price')
     elif sort == 'rating':
-        services = services.annotate(avg_rating=Avg('reviews__rating')).order_by('-avg_rating')
+        services = services.order_by('-avg_rating')  # avg_rating already annotated above
     else:
         services = services.order_by('name')
     

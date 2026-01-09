@@ -3,32 +3,51 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Avg, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.cache import cache
 from .models import Venue, VenueCategory, VenueReview, FavoriteVenue, Amenity
 from .forms import VenueReviewForm
 
+
+def get_cached_cities():
+    """
+    Returns a sorted list of unique cities from approved venues.
+    Caches result for 1 hour since cities change infrequently.
+    
+    Uses database .distinct() for efficiency instead of Python set operations.
+    """
+    cache_key = 'venue_cities_list'
+    cities = cache.get(cache_key)
+    
+    if cities is None:
+        # Use database distinct() and ordering instead of Python processing
+        cities_raw = (
+            Venue.objects
+            .filter(status='approved')
+            .exclude(city__isnull=True)
+            .exclude(city='')
+            .values_list('city', flat=True)
+            .distinct()
+            .order_by('city')
+        )
+        cities = list(cities_raw)
+        
+        # Cache for 1 hour (3600 seconds)
+        # Cities rarely change, so this is safe and provides huge performance boost
+        cache.set(cache_key, cities, 3600)
+    
+    return cities
+
 def venue_list(request):
-    # Use select_related and prefetch_related to avoid N+1 queries
+    # Start with base queryset - NO annotations yet (performance optimization)
+    # Annotations are expensive, so we apply them AFTER filtering to reduce rows
     venues_queryset = Venue.objects.filter(status='approved').prefetch_related(
         'category', 'amenities', 'photos'
-    ).annotate(
-        average_rating=Avg('reviews__rating'),
-        review_count=Count('reviews')
     )
     all_categories = VenueCategory.objects.all()
     all_amenities = Amenity.objects.all()
     
-    # Get all distinct cities from venues - case insensitive
-    cities_raw = Venue.objects.filter(status='approved').values_list('city', flat=True)
-    # Create a case-insensitive set of unique cities
-    cities_set = set(city.lower() for city in cities_raw if city)
-    # Map each lowercase city to its standard display form (first occurrence)
-    cities_map = {}
-    for city in cities_raw:
-        if city and city.lower() not in cities_map:
-            cities_map[city.lower()] = city
-    # Final list of unique cities with proper casing
-    cities = [cities_map[city_lower] for city_lower in cities_set]
-    cities.sort()  # Sort alphabetically for better UX
+    # Get cached cities list (optimized with database distinct() + 1 hour cache)
+    cities = get_cached_cities()
 
     # Filter by category (single selection)
     category_id = request.GET.get('category')
@@ -74,6 +93,14 @@ def venue_list(request):
         # Convert string IDs to integers before filtering
         amenities_int = [int(a) for a in amenities]
         venues_queryset = venues_queryset.filter(amenities__id__in=amenities_int).distinct()
+    
+    # ⚡ PERFORMANCE OPTIMIZATION: Apply annotations AFTER filtering
+    # This way we only calculate avg_rating and review_count for filtered results
+    # Instead of ALL venues, then filtering (which wastes CPU on filtered-out rows)
+    venues_queryset = venues_queryset.annotate(
+        average_rating=Avg('reviews__rating'),
+        review_count=Count('reviews')
+    )
     
     # Sorting (handles both hourly and flat pricing)
     sort = request.GET.get('sort', 'name')

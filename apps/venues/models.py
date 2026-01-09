@@ -88,6 +88,20 @@ class Venue(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+        
+        # Invalidate cities cache if city changed or status changed
+        if self.pk:  # Only for updates
+            try:
+                old_venue = Venue.objects.get(pk=self.pk)
+                if old_venue.city != self.city or old_venue.status != self.status:
+                    from django.core.cache import cache
+                    cache.delete('venue_cities_list')
+            except Venue.DoesNotExist:
+                pass
+        else:  # New venue - invalidate cache
+            from django.core.cache import cache
+            cache.delete('venue_cities_list')
+        
         super().save(*args, **kwargs)
         
     def get_absolute_url(self):
