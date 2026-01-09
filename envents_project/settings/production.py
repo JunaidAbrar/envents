@@ -54,11 +54,42 @@ if 'OPTIONS' not in DATABASES['default']:
 if 'sslmode' not in DATABASES['default']['OPTIONS']:
     DATABASES['default']['OPTIONS']['sslmode'] = 'require'
 
+# Connection pooling - critical for performance with remote Neon database
+# Keeps connections alive for 10 minutes, drastically reducing connection overhead
+DATABASES['default']['CONN_MAX_AGE'] = 600  # 10 minutes
+DATABASES['default']['CONN_HEALTH_CHECKS'] = True  # Verify connection health before reuse
+
 
 
 
 # Session configuration - use database-backed sessions
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# Cache Configuration - Redis for production performance
+# Use Railway Redis addon or external Redis instance
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': env('REDIS_URL', default='redis://127.0.0.1:6379/1'),
+        'KEY_PREFIX': 'envents',
+        'TIMEOUT': 300,  # 5 minutes default
+        'OPTIONS': {
+            'MAX_ENTRIES': 10000,
+            'CULL_FREQUENCY': 4,
+        }
+    }
+}
+
+# Cache middleware - add to MIDDLEWARE if not present
+if 'django.middleware.cache.UpdateCacheMiddleware' not in MIDDLEWARE:
+    MIDDLEWARE.insert(1, 'django.middleware.cache.UpdateCacheMiddleware')
+if 'django.middleware.cache.FetchFromCacheMiddleware' not in MIDDLEWARE:
+    MIDDLEWARE.append('django.middleware.cache.FetchFromCacheMiddleware')
+
+# Cache settings for middleware
+CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_SECONDS = 300  # 5 minutes
+CACHE_MIDDLEWARE_KEY_PREFIX = 'envents'
 
 # Email Configuration
 EMAIL_BACKEND = env('EMAIL_BACKEND')

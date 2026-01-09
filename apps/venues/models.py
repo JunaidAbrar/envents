@@ -78,6 +78,8 @@ class Venue(models.Model):
         indexes = [
             models.Index(fields=['city', 'capacity']),
             models.Index(fields=['status']),
+            models.Index(fields=['is_featured', 'status']),  # Optimize homepage featured query
+            models.Index(fields=['-created_at']),  # Optimize ordering
         ]
     
     def __str__(self):

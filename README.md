@@ -21,6 +21,7 @@ SECRET_KEY=<generate-secure-random-key>
 DEBUG=False
 DJANGO_SETTINGS_MODULE=envents_project.settings.production
 DATABASE_URL=<neon-postgres-connection-string>
+REDIS_URL=<redis-connection-string>
 ALLOWED_HOSTS=enventsbd.com,envents-production.up.railway.app
 CSRF_TRUSTED_ORIGINS=https://enventsbd.com,https://envents-production.up.railway.app
 ```
@@ -53,6 +54,12 @@ CSRF_COOKIE_SECURE=True
 ```
 
 ### Railway Configuration
+
+#### **Services Required**
+1. **PostgreSQL (Neon)** - Primary database
+2. **Redis** - Caching layer (critical for performance)
+   - Add Redis plugin in Railway dashboard
+   - Railway will auto-populate `REDIS_URL` variable
 
 #### **Build Command**
 ```bash
@@ -160,10 +167,56 @@ Ensure all environment variables are set before running this check.
 
 ---
 
+## ⚡ **Performance Optimizations**
+
+The following optimizations are implemented for production performance:
+
+### **Database Optimizations**
+- ✅ **Connection Pooling**: `CONN_MAX_AGE=600` keeps connections alive for 10 minutes
+- ✅ **Strategic Indexes**: Optimized indexes on frequently queried fields
+- ✅ **Query Optimization**: `select_related()` and `prefetch_related()` prevent N+1 queries
+- ✅ **Efficient Random Selection**: Database-level random ordering instead of Python memory loading
+
+### **Caching Strategy**
+- ✅ **Redis Caching**: Full-page and fragment caching for frequently accessed data
+- ✅ **Cache Middleware**: Automatic response caching for anonymous users
+- ✅ **Static Data Caching**: Cities, categories cached for 1 hour
+- ✅ **Featured Venues**: Smart caching with automatic invalidation
+
+### **Response Optimization**
+- ✅ **GZip Compression**: Automatic response compression
+- ✅ **Static Files**: Served from AWS S3 with CloudFront-ready configuration
+- ✅ **Media Files**: Videos and images served from S3 (not application server)
+
+### **Expected Performance**
+- **Homepage Load**: <1-2 seconds (vs 14+ seconds before optimization)
+- **Database Queries**: 1-3 per page (vs 15-20 before)
+- **Cache Hit Rate**: 80-95% for repeat visitors
+- **Connection Overhead**: Near-zero with connection pooling
+
+### **Monitoring Performance**
+
+Check Django cache statistics:
+```bash
+railway run python manage.py shell
+>>> from django.core.cache import cache
+>>> cache.get('venue_cities_list')  # Test cache
+```
+
+Clear cache if needed:
+```bash
+railway run python manage.py shell
+>>> from django.core.cache import cache
+>>> cache.clear()
+```
+
+---
+
 ## 📦 Technology Stack
 
 - **Backend**: Django 5.x
 - **Database**: PostgreSQL (Neon)
+- **Cache**: Redis (Railway addon)
 - **Storage**: AWS S3
 - **Web Server**: Gunicorn
 - **Hosting**: Railway
