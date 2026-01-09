@@ -21,7 +21,6 @@ SECRET_KEY=<generate-secure-random-key>
 DEBUG=False
 DJANGO_SETTINGS_MODULE=envents_project.settings.production
 DATABASE_URL=<neon-postgres-connection-string>
-REDIS_URL=<redis-connection-string>
 ALLOWED_HOSTS=enventsbd.com,envents-production.up.railway.app
 CSRF_TRUSTED_ORIGINS=https://enventsbd.com,https://envents-production.up.railway.app
 ```
@@ -54,12 +53,6 @@ CSRF_COOKIE_SECURE=True
 ```
 
 ### Railway Configuration
-
-#### **Services Required**
-1. **PostgreSQL (Neon)** - Primary database
-2. **Redis** - Caching layer (critical for performance)
-   - Add Redis plugin in Railway dashboard
-   - Railway will auto-populate `REDIS_URL` variable
 
 #### **Build Command**
 ```bash
@@ -178,10 +171,10 @@ The following optimizations are implemented for production performance:
 - ✅ **Efficient Random Selection**: Database-level random ordering instead of Python memory loading
 
 ### **Caching Strategy**
-- ✅ **Redis Caching**: Full-page and fragment caching for frequently accessed data
-- ✅ **Cache Middleware**: Automatic response caching for anonymous users
+- ✅ **In-Memory Caching**: Fast local memory cache for frequently accessed data
 - ✅ **Static Data Caching**: Cities, categories cached for 1 hour
 - ✅ **Featured Venues**: Smart caching with automatic invalidation
+- ℹ️ **Note**: Uses Django's built-in LocMemCache (no external cache server needed)
 
 ### **Response Optimization**
 - ✅ **GZip Compression**: Automatic response compression
@@ -189,9 +182,9 @@ The following optimizations are implemented for production performance:
 - ✅ **Media Files**: Videos and images served from S3 (not application server)
 
 ### **Expected Performance**
-- **Homepage Load**: <1-2 seconds (vs 14+ seconds before optimization)
-- **Database Queries**: 1-3 per page (vs 15-20 before)
-- **Cache Hit Rate**: 80-95% for repeat visitors
+- **Homepage Load**: <2-3 seconds (vs 14+ seconds before optimization)
+- **Database Queries**: 2-5 per page (vs 15-20 before)
+- **Cache Hit Rate**: 70-85% for repeat visitors
 - **Connection Overhead**: Near-zero with connection pooling
 
 ### **Monitoring Performance**
@@ -216,7 +209,7 @@ railway run python manage.py shell
 
 - **Backend**: Django 5.x
 - **Database**: PostgreSQL (Neon)
-- **Cache**: Redis (Railway addon)
+- **Cache**: Django LocMemCache (built-in)
 - **Storage**: AWS S3
 - **Web Server**: Gunicorn
 - **Hosting**: Railway

@@ -46,8 +46,7 @@ additional_venues = list(
 **Impact: -3 to -5 seconds**
 
 **Added:**
-- Redis cache configuration in `production.py`
-- Cache middleware for automatic page caching
+- In-memory cache configuration in `production.py`
 - Cities list cached for 1 hour
 - Categories cached for 1 hour
 - Featured venues with smart invalidation
@@ -56,15 +55,18 @@ additional_venues = list(
 ```python
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': env('REDIS_URL'),
-        'KEY_PREFIX': 'envents',
-        'TIMEOUT': 300,
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'envents-cache',
+        'OPTIONS': {
+            'MAX_ENTRIES': 10000,
+        }
     }
 }
 ```
 
-**Expected Cache Hit Rate:** 80-95%
+**Expected Cache Hit Rate:** 70-85%
+
+**Note:** Uses Django's built-in local memory cache (no Redis required)
 
 ---
 
@@ -131,29 +133,17 @@ models.Index(fields=['-created_at'])  # Ordering
 
 | Metric | Before | After | Improvement |
 |--------|--------|-------|-------------|
-| **Homepage Load** | 14.78s | <2s | **87% faster** |
-| **DOMContentLoaded** | 13.00s | <1s | **92% faster** |
+| **Homepage Load** | 14.78s | <2-3s | **80-85% faster** |
+| **DOMContentLoaded** | 13.00s | <1-2s | **85-90% faster** |
 | **DB Queries** | 15-20 | 2-5 | **75% reduction** |
-| **Cache Hit Rate** | 0% | 80%+ | **∞% improvement** |
+| **Cache Hit Rate** | 0% | 70%+ | **Huge improvement** |
 | **Memory Usage** | High spikes | Stable | **Much better** |
 
 ---
 
 ## 🚀 Deployment Steps
 
-### **1. Add Redis to Railway**
-
-In Railway Dashboard:
-1. Click your project
-2. Click "New" → "Database" → "Add Redis"
-3. Railway auto-populates `REDIS_URL` environment variable
-
-Or use external Redis:
-```bash
-REDIS_URL=redis://default:password@host:6379
-```
-
-### **2. Run Migration**
+### **1. Run Migration**
 
 ```bash
 railway run python manage.py migrate
@@ -161,7 +151,7 @@ railway run python manage.py migrate
 
 This applies the new database indexes.
 
-### **3. Clear Any Existing Cache** (optional)
+### **2. Clear Any Existing Cache** (optional)
 
 ```bash
 railway run python manage.py shell
@@ -169,18 +159,18 @@ railway run python manage.py shell
 >>> cache.clear()
 ```
 
-### **4. Deploy**
+### **3. Deploy**
 
 ```bash
 git push origin master
 ```
 
 Railway will automatically:
-- Install dependencies (redis already in requirements.txt)
+- Install dependencies
 - Run migrations
 - Restart with new settings
 
-### **5. Verify Performance**
+### **4. Verify Performance**
 
 After deployment:
 1. Visit homepage
@@ -207,12 +197,14 @@ print(f"Cities cached: {cities is not None}")
 
 # Check cache keys
 from django.core.cache import cache
-# Redis backend has cache.keys() method
+# LocMemCache doesn't support keys() method
 try:
-    keys = cache.keys('*')
-    print(f"Cached keys: {len(keys)}")
+    # Test cache is working
+    cache.set('test_key', 'test_value', 60)
+    result = cache.get('test_key')
+    print(f"Cache working: {result == 'test_value'}")
 except:
-    print("Cache working but keys() not available")
+    print("Cache not working properly")
 ```
 
 ### **Monitor Database Queries**
@@ -225,7 +217,7 @@ for q in connection.queries:
     print(q['sql'])
 ```
 
-### **Check Redis Connection**
+### **Test Cache Functionality**
 
 ```bash
 railway run python manage.py shell
@@ -246,19 +238,18 @@ print(cache.get('test'))  # Should print: value
 In Railway, ensure these are set:
 
 ```bash
-# Existing
+# Core settings
 SECRET_KEY=<your-secret-key>
 DATABASE_URL=<neon-postgres-url>
 DEBUG=False
-
-# NEW - Required for caching
-REDIS_URL=<redis-connection-url>
 
 # Rest of existing vars...
 AWS_ACCESS_KEY_ID=<...>
 AWS_SECRET_ACCESS_KEY=<...>
 # etc.
 ```
+
+**Note:** No Redis required - using Django's built-in local memory cache.
 
 ### **Optional: Disable Cache for Testing**
 
@@ -309,23 +300,6 @@ Move heavy processing to background workers.
 
 ## 🐛 Troubleshooting
 
-### **"Connection to Redis failed"**
-
-Check:
-1. Redis addon is running in Railway
-2. `REDIS_URL` is set correctly
-3. Redis is accessible from app
-
-Fallback (temporary):
-```python
-# In production.py
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    }
-}
-```
-
 ### **"Cache not working"**
 
 Verify:
@@ -335,6 +309,8 @@ railway run python manage.py shell
 >>> cache.set('test', 123, 60)
 >>> cache.get('test')  # Should return 123
 ```
+
+**Note:** LocMemCache is per-process, so each Railway instance has its own cache.
 
 ### **"Page still slow"**
 
@@ -377,21 +353,23 @@ User visits homepage
 **After:**
 ```
 User visits homepage (first time)
-├─ Redis: Check cache... MISS
+├─ Cache: Check cache... MISS
 ├─ Database: Reuse connection (0ms)
 ├─ Database: Random 4 venues with photos (200ms)
 ├─ Database: Get cities (100ms, cached for 1hr)
 ├─ Template: Render HTML (300ms)
-├─ Redis: Cache response (50ms)
+├─ Cache: Store in memory (10ms)
 └─ Total: ~1-2 seconds ✅
 
-User visits homepage (repeat)
-├─ Redis: Check cache... HIT! 🎯
+User visits homepage (repeat, same server)
+├─ Cache: Check cache... HIT! 🎯
 └─ Total: <500ms ⚡
 ```
 
+**Note:** Cache is per-process (each Railway dyno has its own cache).
+
 ---
 
-**Commit:** `a1964ae`
+**Commit:** `a1964ae` & updates
 **Date:** January 9, 2026
 **Status:** ✅ Ready for deployment
